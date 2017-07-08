@@ -16,4 +16,11 @@ import_config "../apps/*/config/config.exs"
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 
+config :libcluster,
+  topologies: [
+    primary: [
+      strategy: MinerAdmin.Cluster.Strategy,
+    ]
+  ]
+
 import_config "#{Mix.env}.secret.exs"
