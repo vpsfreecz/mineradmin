@@ -9,7 +9,14 @@ defmodule MinerAdmin.Model.Schema.Node do
     timestamps()
   end
 
-  def changeset(node, params \\ %{}) do
+  def create_changeset(node, params \\ %{}) do
+    node
+    |> cast(params, [:name, :domain])
+    |> validate_required([:name, :domain])
+    |> unique_constraint(:name, name: :nodes_name_unique)
+  end
+
+  def update_changeset(node, params \\ %{}) do
     node
     |> cast(params, [:name, :domain])
     |> unique_constraint(:name, name: :nodes_name_unique)

@@ -3,7 +3,9 @@ defmodule MinerAdmin.Api.Router do
 
   version "1.0" do
     auth_chain []
-    resources []
+    resources [
+      MinerAdmin.Api.Node,
+    ]
   end
 
   mount "/"
