@@ -3,8 +3,8 @@ defmodule MinerAdmin.Model.Repo.Migrations.Setup do
 
   def change do
     create table(:nodes) do
-      add :name, :string
-      add :domain, :string
+      add :name, :string, null: false
+      add :domain, :string, null: false
 
       timestamps()
     end
