@@ -3,7 +3,7 @@ defmodule MinerAdmin.Api.Node.Delete do
   alias MinerAdmin.Api
   alias MinerAdmin.Model
 
-  auth false
+  def authorize(_req, user), do: Model.User.admin?(user)
 
   def exec(req) do
     case find(req.params[:node_id]) do

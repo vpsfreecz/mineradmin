@@ -3,11 +3,11 @@ defmodule MinerAdmin.Api.Node.Show do
   alias MinerAdmin.Api
   alias MinerAdmin.Model
 
-  auth false
-
   output do
     use Api.Node.Params
   end
+
+  def authorize(_req, user), do: Model.User.admin?(user)
 
   def item(req), do: Model.Query.Node.get(req.params[:node_id])
 end
