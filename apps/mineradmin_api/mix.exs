@@ -37,6 +37,7 @@ defmodule MinerAdmin.Api.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:haveapi, path: "/home/aither/workspace/elixir/haveapi"}]
+    [{:haveapi, path: "/home/aither/workspace/elixir/haveapi"},
+     {:mineradmin_model, in_umbrella: true}]
   end
 end
