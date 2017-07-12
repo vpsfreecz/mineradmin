@@ -12,7 +12,6 @@ defmodule MinerAdmin.Model.Schema.AuthToken do
     field :valid_to, :utc_datetime
     field :interval, :integer
     field :lifetime, Lifetime
-    field :use_count, :integer
 
     timestamps()
   end
@@ -23,6 +22,11 @@ defmodule MinerAdmin.Model.Schema.AuthToken do
     |> check_lifetime(token.lifetime)
     |> validate_length(:token, is: 100)
     |> unique_constraint(:token)
+  end
+
+  def extend_changeset(token, params \\ %{}) do
+    token
+    |> cast(params, [:valid_to])
   end
 
   defp check_lifetime(changeset, :permanent), do: changeset

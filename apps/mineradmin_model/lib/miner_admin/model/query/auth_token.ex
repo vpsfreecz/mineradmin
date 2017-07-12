@@ -37,30 +37,25 @@ defmodule MinerAdmin.Model.Query.AuthToken do
     ) |> @repo.one
   end
 
-  def renew(token) do
+  def extend(token) do
     valid_to = Timex.add(DateTime.utc_now, Timex.Duration.from_seconds(token.interval))
 
-    from(
-      t in @schema,
-      where: t.id == ^token.id,
-      update: [
-        set: [valid_to: ^valid_to],
-        inc: [use_count: 1],
-    ]) |> @repo.update_all([])
+    {:ok, _} = token
+      |> @schema.extend_changeset(%{valid_to: valid_to})
+      |> @repo.update
 
     valid_to
   end
 
-  def revoke(token) do
-    @repo.delete(token)
-  end
-
-  def update_used(token) do
+  def revoke(id) when is_integer(id) do
     from(
       t in @schema,
-      where: t.id == ^token.id,
-      update: [inc: [use_count: 1]]
-    ) |> @repo.update_all([])
+      where: t.id == ^id
+    ) |> @repo.delete_all()
+  end
+
+  def revoke(token) do
+    @repo.delete(token)
   end
 
   defp valid_to(:permanent, _interval), do: nil

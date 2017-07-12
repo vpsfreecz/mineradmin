@@ -1,15 +1,26 @@
 defmodule MinerAdmin.Api.Authentication.Token do
   use HaveAPI.Authentication.Token
+  alias MinerAdmin.Model
   alias MinerAdmin.Model.Query
 
   def find_user_by_credentials(_conn, username, password) do
-    authenticate(Query.User.get_by(login: username), password)
+    case Model.UserSession.authenticate(username, password) do
+      {:ok, user} ->
+        user
+
+      :incorrect_password ->
+        :halt
+
+      :not_found ->
+        nil
+    end
   end
 
   # TODO: regenerate token when unique constraint stops the save
-  def save_token(_conn, user, token, lifetime, interval) do
+  def save_token(conn, user, token, lifetime, interval) do
     case Query.AuthToken.create(user, token, String.to_atom(lifetime), interval) do
       {:ok, t} ->
+        {:ok, session} = Model.UserSession.open(conn, user, token: t)
         {:ok, t.valid_to}
 
       {:error, changeset} ->
@@ -18,55 +29,34 @@ defmodule MinerAdmin.Api.Authentication.Token do
   end
 
   def find_user_by_token(_conn, token_str) do
-    t = Query.AuthToken.find(token_str)
+    case Model.UserSession.find(token: token_str) do
+      nil ->
+        nil
 
-    if t do
-      if t.lifetime == :renewable_auto do
-        do_renew(t)
-
-      else
-        used(t)
-      end
-
-      t.user
+      session ->
+        Model.UserSession.continue(session)
+        session.user
     end
   end
 
-  def renew_token(_conn, user, token_str) do
-    case Query.AuthToken.find(user, token_str) do
+  def renew_token(_conn, _user, token_str) do
+    case Model.UserSession.find(token: token_str) do
       nil ->
         {:error, "token not found"}
 
-      t ->
-        {:ok, do_renew(t)}
+      session ->
+        {:ok, Model.UserSession.extend(session)}
     end
   end
 
-  def revoke_token(_conn, user, token_str) do
-    case Query.AuthToken.find(user, token_str) do
+  def revoke_token(_conn, _user, token_str) do
+    case Model.UserSession.find(token: token_str) do
       nil ->
         {:error, "token not found"}
 
-      t ->
-        do_revoke(t)
+      session ->
+        Model.UserSession.close(session)
         :ok
     end
   end
-
-  defp authenticate(nil, _password), do: nil
-
-  defp authenticate(user, password) do
-    if user.password == password do
-      user
-
-    else
-      :halt
-    end
-  end
-
-  defp do_renew(token), do: Query.AuthToken.renew(token)
-
-  defp do_revoke(token), do: Query.AuthToken.revoke(token)
-
-  defp used(token), do: Query.AuthToken.update_used(token)
 end
