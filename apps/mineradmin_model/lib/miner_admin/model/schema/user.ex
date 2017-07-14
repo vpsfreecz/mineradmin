@@ -8,6 +8,7 @@ defmodule MinerAdmin.Model.Schema.User do
     field :password, :string
     field :role, :integer
 
+    belongs_to :auth_backend, Schema.AuthBackend
     has_many :auth_tokens, Schema.AuthToken
 
     timestamps()

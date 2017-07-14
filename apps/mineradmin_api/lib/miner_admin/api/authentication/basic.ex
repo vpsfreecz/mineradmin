@@ -3,7 +3,7 @@ defmodule MinerAdmin.Api.Authentication.Basic do
   alias MinerAdmin.Model
 
   def find_user(conn, username, password) do
-    case Model.UserSession.authenticate(username, password) do
+    case Model.User.authenticate(username, password) do
       {:ok, user} ->
         Model.UserSession.one_time(conn, user, :basic)
         user

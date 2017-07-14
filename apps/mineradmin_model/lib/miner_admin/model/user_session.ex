@@ -10,24 +10,6 @@ defmodule MinerAdmin.Model.UserSession do
     GenServer.start_link(__MODULE__, session, opts)
   end
 
-  @spec authenticate(
-    username :: String.t, password :: String.t
-  ) :: {:ok, any} | :incorrect_password | :not_found
-
-  def authenticate(username, password) do
-    do_authenticate(Query.User.get_by(login: username), password)
-  end
-
-  defp do_authenticate(nil, _password), do: :not_found
-  defp do_authenticate(user, password) do
-    if user.password == password do
-      {:ok, user}
-
-    else
-      :incorrect_password
-    end
-  end
-
   def open(conn, user, [token: token]) do
     {:ok, session} = new(conn, user, :token)
       |> Map.merge(%{auth_token_id: token.id, auth_token_str: token.token})
