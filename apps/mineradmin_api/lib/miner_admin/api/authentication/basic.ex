@@ -13,6 +13,9 @@ defmodule MinerAdmin.Api.Authentication.Basic do
 
       :not_found ->
         nil
+
+      {:error, _msg} ->
+        :halt
     end
   end
 end

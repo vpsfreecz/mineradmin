@@ -9,6 +9,7 @@ defmodule MinerAdmin.Model.Supervisor do
   def init([]) do
     children = [
       supervisor(Model.UserSession.Supervisor, []),
+      supervisor(Model.AuthBackend.Supervisor, []),
     ]
 
     supervise(children, strategy: :one_for_one)

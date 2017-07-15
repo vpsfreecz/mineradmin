@@ -9,9 +9,12 @@ defmodule MinerAdmin.Api.Authentication.Token do
         user
 
       :incorrect_password ->
-        :halt
+        nil
 
       :not_found ->
+        nil
+
+      {:error, _msg} ->
         nil
     end
   end
@@ -20,7 +23,7 @@ defmodule MinerAdmin.Api.Authentication.Token do
   def save_token(conn, user, token, lifetime, interval) do
     case Query.AuthToken.create(user, token, String.to_atom(lifetime), interval) do
       {:ok, t} ->
-        {:ok, session} = Model.UserSession.open(conn, user, token: t)
+        {:ok, _session} = Model.UserSession.open(conn, user, token: t)
         {:ok, t.valid_to}
 
       {:error, changeset} ->

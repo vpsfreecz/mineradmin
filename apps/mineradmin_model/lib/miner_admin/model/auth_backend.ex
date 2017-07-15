@@ -2,10 +2,10 @@ defmodule MinerAdmin.Model.AuthBackend do
   alias MinerAdmin.Model
 
   @callback authenticate(
-    opts :: map,
+    pid_or_opts :: map | pid,
     user :: map,
     password :: String.t
-  ) :: :ok | :incorrect_password | :not_found
+  ) :: :ok | :incorrect_password | :not_found | {:error, String.t}
 
   def authenticate(nil, user, password) do
     apply(
@@ -16,10 +16,10 @@ defmodule MinerAdmin.Model.AuthBackend do
   end
 
   def authenticate(backend, user, password) do
-    apply(
-      Module.concat([backend.module]),
-      :authenticate,
-      [backend.opts, user, password]
-    )
+    Model.AuthBackend.Wrapper.authenticate(backend, user, password)
+  end
+
+  def via_tuple(backend) do
+    {:via, Registry, {Model.Registry, {:auth_backend, backend.id}}}
   end
 end

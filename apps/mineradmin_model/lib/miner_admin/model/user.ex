@@ -4,7 +4,7 @@ defmodule MinerAdmin.Model.User do
 
   @spec authenticate(
     username :: String.t, password :: String.t
-  ) :: {:ok, any} | :incorrect_password | :not_found
+  ) :: {:ok, any} | :incorrect_password | :not_found | {:error, String.t}
 
   def authenticate(username, password) do
     do_authenticate(Query.User.get_by(login: username), password)

@@ -3,7 +3,7 @@ defmodule MinerAdmin.Model.AuthBackend.Default do
 
   @behaviour Model.AuthBackend
 
-  def authenticate(opts, user, password) do
+  def authenticate(_opts, user, password) do
     if user.password == password do
       :ok
 
