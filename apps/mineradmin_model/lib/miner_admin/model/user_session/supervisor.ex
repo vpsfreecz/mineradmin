@@ -3,22 +3,15 @@ defmodule MinerAdmin.Model.UserSession.Supervisor do
   alias MinerAdmin.Model
 
   def start_link do
-    Supervisor.start_link(__MODULE__, [], name: :user_session_supervisor)
+    Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   def init([]) do
-    supervise([], strategy: :one_for_one)
-  end
+    children = [
+      supervisor(Model.UserSession.WorkerSupervisor, []),
+      worker(Model.UserSession.Starter, [], restart: :transient),
+    ]
 
-  def add_session(session) do
-    Supervisor.start_child(
-      :user_session_supervisor,
-      worker(
-        Model.UserSession,
-        [session, [name: Model.UserSession.via_tuple(session)]],
-        restart: :transient,
-        id: session.id
-      )
-    )
+    supervise(children, strategy: :rest_for_one, name: __MODULE__)
   end
 end

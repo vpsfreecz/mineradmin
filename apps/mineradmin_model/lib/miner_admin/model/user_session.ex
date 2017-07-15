@@ -15,7 +15,7 @@ defmodule MinerAdmin.Model.UserSession do
       |> Map.merge(%{auth_token_id: token.id, auth_token_str: token.token})
       |> Query.UserSession.create()
 
-    Model.UserSession.Supervisor.add_session(session)
+    Model.UserSession.WorkerSupervisor.add_session(session)
     {:ok, session}
   end
 

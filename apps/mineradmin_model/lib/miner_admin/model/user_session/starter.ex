@@ -19,7 +19,7 @@ defmodule MinerAdmin.Model.UserSession.Starter do
     for s <- Model.Query.UserSession.active_sessions() do
       Logger.debug "Session #{s.id}"
 
-      Model.UserSession.Supervisor.add_session(s)
+      Model.UserSession.WorkerSupervisor.add_session(s)
     end
 
     {:stop, :normal, nil}

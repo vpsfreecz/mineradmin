@@ -14,13 +14,12 @@ defmodule MinerAdmin.Model.Application do
       # Starts a worker by calling: MinerAdmin.Model.Worker.start_link(arg1, arg2, arg3)
       supervisor(Model.Repo, []),
       supervisor(Registry, [:unique, Model.Registry]),
-      supervisor(Model.UserSession.Supervisor, [], name: :user_session_supervisor),
-      worker(Model.UserSession.Starter, [], restart: :transient),
+      supervisor(Model.Supervisor, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :rest_for_one, name: MinerAdmin.Model.Supervisor]
+    opts = [strategy: :rest_for_one, name: :mineradmin_model_app_supervisor]
     Supervisor.start_link(children, opts)
   end
 end
