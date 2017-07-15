@@ -11,7 +11,7 @@ defmodule MinerAdmin.Model.AuthBackend.HaveAPI do
   end
   
   def authenticate(pid, user, password) do
-    GenServer.call(pid, {:authenticate, user, password})
+    GenServer.call(pid, {:authenticate, user, password}, 15_000)
   end
 
   # Server implementation

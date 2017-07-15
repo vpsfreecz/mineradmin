@@ -11,7 +11,8 @@ defmodule MinerAdmin.Model.AuthBackend.Wrapper do
   def authenticate(backend, user, password) do
     GenServer.call(
       Model.AuthBackend.via_tuple(backend),
-      {:authenticate, user, password}
+      {:authenticate, user, password},
+      15_000
     )
   end
 
