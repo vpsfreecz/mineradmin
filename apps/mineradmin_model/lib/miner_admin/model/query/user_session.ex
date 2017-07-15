@@ -30,10 +30,10 @@ defmodule MinerAdmin.Model.Query.UserSession do
   end
 
   def close(%@schema{auth_method: "token"} = session, params) do
-    {:ok, session} = @repo.transaction(fn ->
+    {:ok, _session} = @repo.transaction(fn ->
       token_id = session.auth_token_id
 
-      {:ok, session} = update(session, Map.merge(params, %{
+      {:ok, _session} = update(session, Map.merge(params, %{
         auth_token_id: nil
       }))
 
