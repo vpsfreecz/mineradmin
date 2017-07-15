@@ -42,7 +42,7 @@ defmodule MinerAdmin.Model.Query.UserSession do
   end
 
   def active_sessions do
-    from(s in @schema, where: is_nil(s.closed_at))
+    from(s in @schema, where: is_nil(s.closed_at), preload: [:user, :auth_token])
     |> @repo.all
   end
 end
