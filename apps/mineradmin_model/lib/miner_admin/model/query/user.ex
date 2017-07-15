@@ -1,8 +1,5 @@
 defmodule MinerAdmin.Model.Query.User do
-  alias MinerAdmin.Model
-
-  @repo Model.Repo
-  @schema Model.Schema.User
+  use MinerAdmin.Model.Query
 
   def count, do: @repo.aggregate(@schema, :count, :id)
 

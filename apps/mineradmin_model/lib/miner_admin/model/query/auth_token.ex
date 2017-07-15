@@ -1,9 +1,5 @@
 defmodule MinerAdmin.Model.Query.AuthToken do
-  import Ecto.Query, only: [from: 2]
-  alias MinerAdmin.Model
-
-  @repo Model.Repo
-  @schema Model.Schema.AuthToken
+  use MinerAdmin.Model.Query
 
   def create(user, token_str, lifetime, interval) do
     Ecto.build_assoc(user, :auth_tokens)

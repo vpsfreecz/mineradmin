@@ -1,9 +1,5 @@
 defmodule MinerAdmin.Model.Query.UserSession do
-  import Ecto.Query, only: [from: 2]
-  alias MinerAdmin.Model
-
-  @repo Model.Repo
-  @schema Model.Schema.UserSession
+  use MinerAdmin.Model.Query
 
   def find([token: token]) do
     from(
