@@ -44,7 +44,7 @@ defmodule MinerAdmin.Model.AuthBackend.Wrapper do
   def handle_info({:EXIT, _from, reason}, {backend, _pid}) do
     Logger.info "Auth backend process of #{backend.module} (id=#{backend.id}) " <>
       "exited with reason #{inspect(reason)}. Restarting in 30s."
-    
+
     Process.send_after(self(), :retry, 30*1000)
     {:noreply, {backend, nil}}
   end

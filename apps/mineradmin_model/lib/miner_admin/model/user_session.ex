@@ -75,7 +75,7 @@ defmodule MinerAdmin.Model.UserSession do
       request_count: 1
     }
   end
-  
+
   # Server implementation
   def init(session) do
     GenServer.cast(self(), :startup)
@@ -85,7 +85,7 @@ defmodule MinerAdmin.Model.UserSession do
   def handle_cast(:startup, session) do
     return_cast(session)
   end
-  
+
   def handle_call(:continue, _from, session) do
     {:ok, session} = Query.UserSession.update(session, %{
       last_request_at: DateTime.utc_now,
@@ -102,17 +102,17 @@ defmodule MinerAdmin.Model.UserSession do
 
     return_call(session)
   end
-  
+
   def handle_call(:extend, _from, session) do
     case session.auth_method do
-      "token" -> 
+      "token" ->
         return_call(session, Query.AuthToken.extend(session.auth_token))
 
       _ ->
         {:stop, :error}
     end
   end
-  
+
   def handle_call(:close, _from, session) do
     {:stop, :normal, :ok, do_close(session)}
   end
@@ -133,7 +133,7 @@ defmodule MinerAdmin.Model.UserSession do
     session
   end
 
-  defp return_cast(session), do: return(session, [:noreply, session]) 
+  defp return_cast(session), do: return(session, [:noreply, session])
 
   defp return_call(session), do: return_call(session, :ok)
 

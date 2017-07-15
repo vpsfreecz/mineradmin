@@ -9,7 +9,7 @@ defmodule MinerAdmin.Model.AuthBackend.HaveAPI do
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts)
   end
-  
+
   def authenticate(pid, user, password) do
     GenServer.call(pid, {:authenticate, user, password}, 15_000)
   end
@@ -23,7 +23,7 @@ defmodule MinerAdmin.Model.AuthBackend.HaveAPI do
 
   def handle_cast(:init, {opts, nil}) do
     api = Client.connect(opts["url"])
-    
+
     {:noreply, {opts, api}}
   end
 
