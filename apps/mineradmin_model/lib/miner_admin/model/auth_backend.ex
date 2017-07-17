@@ -7,6 +7,8 @@ defmodule MinerAdmin.Model.AuthBackend do
     password :: String.t
   ) :: :ok | :incorrect_password | :not_found | {:error, String.t}
 
+  @callback user_changeset(changeset :: map, :create | :update) :: map
+
   def authenticate(nil, user, password) do
     apply(
       Model.AuthBackend.Default,
@@ -21,5 +23,21 @@ defmodule MinerAdmin.Model.AuthBackend do
 
   def via_tuple(backend) do
     {:via, Registry, {Model.Registry, {:auth_backend, backend.id}}}
+  end
+
+  def user_changeset(:default, changeset, type) do
+    apply(
+      Model.AuthBackend.Default,
+      :user_changeset,
+      [changeset, type]
+    )
+  end
+
+  def user_changeset(backend, changeset, type) do
+    apply(
+      Module.concat([backend.module]),
+      :user_changeset,
+      [changeset, type]
+    )
   end
 end

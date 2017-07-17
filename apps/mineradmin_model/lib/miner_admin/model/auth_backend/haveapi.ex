@@ -14,6 +14,16 @@ defmodule MinerAdmin.Model.AuthBackend.HaveAPI do
     GenServer.call(pid, {:authenticate, user, password}, 15_000)
   end
 
+  def user_changeset(changeset, _type) do
+    Ecto.Changeset.validate_change(changeset, :password, fn :password, pwd ->
+      if pwd do
+        [password: "cannot be set, password from the remote API is used instead"]
+      else
+        []
+      end
+    end)
+  end
+
   # Server implementation
   def init(opts) do
     GenServer.cast(self(), :init)

@@ -3,7 +3,10 @@ defmodule MinerAdmin.Model.Query.User do
 
   def count, do: @repo.aggregate(@schema, :count, :id)
 
-  def all, do: @repo.all(@schema)
+  def all do
+    from(u in @schema, preload: [:auth_backend])
+    |> @repo.all()
+  end
 
   def get(id) do
     @schema
@@ -16,4 +19,18 @@ defmodule MinerAdmin.Model.Query.User do
     |> @repo.get_by(params)
     |> @repo.preload([:auth_backend])
   end
+
+  def create(params) do
+    %@schema{}
+    |> @schema.create_changeset(params)
+    |> @repo.insert()
+  end
+
+  def update(user, params) do
+    user
+    |> @schema.update_changeset(params)
+    |> @repo.update()
+  end
+
+  def delete(user), do: @repo.delete(user)
 end
