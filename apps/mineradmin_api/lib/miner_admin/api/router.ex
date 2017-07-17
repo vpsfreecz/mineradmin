@@ -9,6 +9,7 @@ defmodule MinerAdmin.Api.Router do
     ]
 
     resources [
+      Api.AuthBackend,
       Api.Node,
     ]
   end
