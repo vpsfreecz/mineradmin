@@ -19,7 +19,7 @@ class Minerd::Handler
 
   def start
     @thread = Thread.new do
-      @io = IO.popen([@cmd].concat(@args))
+      @io = IO.popen(wrapped, 'r+')
       puts "Process started with PID #{@io.pid}"
 
       until @io.eof?
@@ -32,6 +32,18 @@ class Minerd::Handler
   end
 
   def stop
-    Process.kill('TERM', @io.pid)
+    @io.puts('Q')
+  end
+
+  def wrapped
+    [wrapper] + [@cmd] + @args
+  end
+
+  def wrapper
+    File.absolute_path(File.join(
+      File.dirname(__FILE__),
+      '..', '..',
+      'bin', 'minerd-wrapper'
+    ))
   end
 end

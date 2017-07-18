@@ -1,0 +1,79 @@
+#!/usr/bin/env ruby
+require 'pty'
+require 'base64'
+
+def detach(pid)
+  Process.kill('TERM', pid)
+end
+
+def read_nonblock(io)
+  io.read_nonblock(4096)
+
+rescue IO::WaitReadable
+  ''
+
+rescue Errno::EIO
+  nil
+end
+
+cmd = ARGV[0]
+
+master, slave = PTY.open
+puts slave.path
+
+`stty -F #{slave.path} raw -echo -icanon -isig`
+
+current_w = 80
+current_h = 25
+
+pid = spawn(cmd, *ARGV[1..-1], in: slave, out: slave, err: slave)
+slave.close
+
+catch :stop do
+  loop do
+    rs, _ = IO.select([$stdin, master])
+
+    rs.each do |r|
+      case r
+      when $stdin
+        buf = read_nonblock($stdin)
+        throw(:stop) if buf.nil?
+
+        buf.split("\n").each do |msg|
+          cmd = msg.split(' ')
+
+          case cmd[0]
+          when 'W'
+            master.write(Base64.decode64(cmd[1]))
+
+          when 'S'
+            w, h = cmd[1..2].map { |v| v.to_i }
+
+            if w != current_w || h != current_h
+              current_w = w
+              current_h = h
+
+              `stty -F #{slave.path} rows #{h} cols #{w}`
+              Process.kill('WINCH', pid)
+            end
+
+          when 'Q'
+            detach(pid)
+            throw(:stop)
+          end
+        end
+
+      when master
+        buf = read_nonblock(master)
+        throw(:stop) if buf.nil?
+
+        $stdout.write(buf)
+        $stdout.flush
+      end
+    end
+  end
+end
+
+master.close
+
+Process.wait(pid)
