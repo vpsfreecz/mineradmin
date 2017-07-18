@@ -19,9 +19,7 @@ defmodule MinerAdmin.Api.Node.Create do
         node
 
       {:error, changeset} ->
-        {:error, "Validation failed", errors: Enum.map(
-          changeset.errors, fn {k, {msg, _opts}} -> {k, [msg]} end
-        ) |> Map.new}
+        Api.format_errors(changeset)
     end
   end
 end

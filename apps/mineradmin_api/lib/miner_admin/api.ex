@@ -41,4 +41,19 @@ defmodule MinerAdmin.Api do
       data
     end
   end
+
+  @doc """
+  Format errors from Ecto changeset into form understood by HaveAPI.
+  """
+  def format_errors(changeset, msg \\ nil, opts \\ []) do
+    opts = Keyword.put(opts, :errors, Enum.map(
+      changeset.errors, fn {k, {msg, _opts}} -> {k, [msg]} end
+    ) |> Map.new)
+
+    {
+      :error,
+      msg || "Validation failed",
+      opts,
+    }
+  end
 end

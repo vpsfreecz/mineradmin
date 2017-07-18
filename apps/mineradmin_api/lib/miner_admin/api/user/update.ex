@@ -32,9 +32,7 @@ defmodule MinerAdmin.Api.User.Update do
         Api.resourcify(user, [:auth_backend])
 
       {:error, changeset} ->
-        {:error, "Validation failed", errors: Enum.map(
-          changeset.errors, fn {k, {msg, _opts}} -> {k, [msg]} end
-        ) |> Map.new}
+        Api.format_errors(changeset)
     end
   end
 end
