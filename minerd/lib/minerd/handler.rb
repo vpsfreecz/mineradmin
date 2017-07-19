@@ -30,14 +30,14 @@ class Minerd::Handler
 
       Process.wait(@io.pid)
       Minerd::State.unregister(@id)
+      sync { unsubscribe_all(:exit) }
     end
   end
 
   def stop
     sync do
       @io.puts('Q')
-      @subscribers.each { |_, block| block.call(:exit, nil) }
-      @subscribers.clear
+      unsubscribe_all(:exit)
     end
   end
 
@@ -64,6 +64,11 @@ class Minerd::Handler
   protected
   def distribute(data)
     sync { @subscribers.each { |_, block| block.call(:data, data) } }
+  end
+
+  def unsubscribe_all(reason)
+    @subscribers.each { |_, block| block.call(:exit, nil) }
+    @subscribers.clear
   end
 
   def wrapped
