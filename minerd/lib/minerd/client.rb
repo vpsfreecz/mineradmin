@@ -8,7 +8,7 @@ class Minerd::Client
       msg = @socket.readline.split(/\s/)
 
       begin
-        process(msg[0], msg[1..-1])
+        process(msg[0], msg[1..-1] || [])
 
       rescue => e
         warn "Command error: #{e.message} (#{e.class})"
@@ -17,6 +17,10 @@ class Minerd::Client
         reply('ERROR')
       end
     end
+
+  rescue EOFError
+    puts "Client disconnected"
+    @socket.close
   end
 
   def process(cmd, args)
@@ -36,7 +40,12 @@ class Minerd::Client
   end
 
   def cmd_start(args)
-    Minerd::Handler.run(args[0], args[1], args[2..-1])
+    if args.count < 2
+      reply('BAD CALL')
+      return
+    end
+
+    Minerd::Handler.run(args[0], args[1], args[2..-1] || [])
     reply('OK')
 
   rescue Minerd::Handler::AlreadyStarted
@@ -44,6 +53,11 @@ class Minerd::Client
   end
 
   def cmd_stop(args)
+    if args.count < 1
+      reply('BAD CALL')
+      return
+    end
+
     h = Minerd::State.handler_by_id(args[0])
 
     if h
