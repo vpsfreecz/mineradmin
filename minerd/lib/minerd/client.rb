@@ -18,9 +18,9 @@ class Minerd::Client
       end
     end
 
-  rescue EOFError
+  rescue IOError
     puts "Client disconnected"
-    @socket.close
+    @socket.close unless @socket.closed?
   end
 
   def process(cmd, args)

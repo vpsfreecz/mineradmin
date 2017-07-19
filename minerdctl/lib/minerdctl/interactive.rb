@@ -80,6 +80,10 @@ class Minerdctl::Interactive
       send_cmd('Q')
     end
 
+    def unbind
+      EM.stop
+    end
+
     protected
     def send_cmd(cmd, *args)
       File.open('log.txt', 'a') { |f| f.write("#{cmd} #{args.join(' ')}\n") }

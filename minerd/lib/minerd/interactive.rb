@@ -5,8 +5,14 @@ class Minerd::Interactive
   end
 
   def subscribe
-    @handler = Minerd::State.handler_subscribe(@id, self) do |data|
-      @socket.send(data, 0)
+    @handler = Minerd::State.handler_subscribe(@id, self) do |event, data|
+      case event
+      when :data
+        @socket.send(data, 0)
+
+      when :exit
+        @socket.close
+      end
     end
   end
 
@@ -48,7 +54,7 @@ class Minerd::Interactive
       end
     end
 
-  rescue EOFError
+  rescue IOError
 
   ensure
     Minerd::State.handler_unsubscribe(@id, self)

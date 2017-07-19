@@ -34,15 +34,19 @@ class Minerd::Handler
   end
 
   def stop
-    @io.puts('Q')
+    sync do
+      @io.puts('Q')
+      @subscribers.each { |_, block| block.call(:exit, nil) }
+      @subscribers.clear
+    end
   end
 
   def write(data)
-    @io.puts("W #{data}")
+    sync { @io.puts("W #{data}") }
   end
 
   def resize(w, h)
-    @io.puts("S #{w} #{h}")
+    sync { @io.puts("S #{w} #{h}") }
   end
 
   def subscribe(subscriber, block)
@@ -59,7 +63,7 @@ class Minerd::Handler
 
   protected
   def distribute(data)
-    sync { @subscribers.each { |_, block| block.call(data) } }
+    sync { @subscribers.each { |_, block| block.call(:data, data) } }
   end
 
   def wrapped
