@@ -1,5 +1,5 @@
 class Minerdctl::Cli
-  COMMANDS = %w(status start stop list)
+  COMMANDS = %w(status start stop list attach)
 
   def self.run
     if ARGV.count < 1
@@ -61,5 +61,22 @@ class Minerdctl::Cli
 
   def run_list(args)
     puts @client.list.split(';').join("\n")
+  end
+
+  def run_attach(args)
+    if args.count < 1
+      warn "Missing argument <id>"
+      exit(false)
+    end
+
+    ret = @client.attach(args[0]).strip
+
+    if ret != 'OK'
+      warn "Unable to attach #{args[0]}: #{ret}"
+      exit(false)
+    end
+
+    i = Minerdctl::Interactive.new(@client.socket)
+    i.start
   end
 end

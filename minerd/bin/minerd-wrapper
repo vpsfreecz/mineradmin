@@ -19,9 +19,6 @@ end
 cmd = ARGV[0]
 
 master, slave = PTY.open
-puts slave.path
-
-`stty -F #{slave.path} raw -echo -icanon -isig`
 
 current_w = 80
 current_h = 25

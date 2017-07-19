@@ -1,6 +1,8 @@
 require 'socket'
 
 class Minerdctl::Client
+  attr_reader :socket
+
   def initialize(host, port)
     @socket = TCPSocket.new(host, port)
   end
@@ -23,6 +25,10 @@ class Minerdctl::Client
 
   def list
     cmd('LIST')
+  end
+
+  def attach(id)
+    cmd('ATTACH', id)
   end
 
   protected

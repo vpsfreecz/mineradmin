@@ -25,7 +25,7 @@ class Minerd::Client
 
   def process(cmd, args)
     puts "Command '#{cmd}', args '#{args}'"
-    commands = %w(STATUS START STOP LIST)
+    commands = %w(STATUS START STOP LIST ATTACH)
 
     unless commands.include?(cmd)
       reply('NOT UNDERSTOOD')
@@ -73,6 +73,23 @@ class Minerd::Client
     reply(Minerd::State.processes.map do |id, p|
       "#{id}: cmd=#{p.cmd}"
     end.join(';'))
+  end
+
+  def cmd_attach(args)
+    if args.count < 1
+      reply('BAD CALL')
+      return
+    end
+
+    i = Minerd::Interactive.new(@socket, args[0])
+
+    if i.subscribe
+      reply('OK')
+      i.start
+
+    else
+      reply('NOT FOUND')
+    end
   end
 
   def reply(msg)

@@ -12,9 +12,11 @@ class Minerd::Handler
   end
 
   def initialize(id, cmd, args)
+    @mutex = Mutex.new
     @id = id
     @cmd = cmd
     @args = args
+    @subscribers = []
   end
 
   def start
@@ -23,7 +25,7 @@ class Minerd::Handler
       puts "Process started with PID #{@io.pid}"
 
       until @io.eof?
-        @io.readline
+        distribute(@io.readpartial(512))
       end
 
       Process.wait(@io.pid)
@@ -33,6 +35,31 @@ class Minerd::Handler
 
   def stop
     @io.puts('Q')
+  end
+
+  def write(data)
+    @io.puts("W #{data}")
+  end
+
+  def resize(w, h)
+    @io.puts("S #{w} #{h}")
+  end
+
+  def subscribe(subscriber, block)
+    sync { @subscribers << [subscriber, block] }
+  end
+
+  def unsubscribe(subscriber)
+    sync do
+      @subscribers.delete_if do |sub, _|
+        sub == subscriber
+      end
+    end
+  end
+
+  protected
+  def distribute(data)
+    sync { @subscribers.each { |_, block| block.call(data) } }
   end
 
   def wrapped
@@ -45,5 +72,9 @@ class Minerd::Handler
       '..', '..',
       'bin', 'minerd-wrapper'
     ))
+  end
+
+  def sync
+    @mutex.synchronize { yield }
   end
 end

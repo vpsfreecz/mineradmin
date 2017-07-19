@@ -22,6 +22,14 @@ class Minerd::State
     def handler_by_id(*args)
       get.handler_by_id(*args)
     end
+
+    def handler_subscribe(*args, &block)
+      get.handler_subscribe(*args, &block)
+    end
+
+    def handler_unsubscribe(*args)
+      get.handler_unsubscribe(*args)
+    end
   end
 
   private
@@ -52,6 +60,29 @@ class Minerd::State
 
   def handler_by_id(id)
     sync { @processes[id] }
+  end
+
+  def handler_subscribe(id, subscriber, &block)
+    sync do
+      if @processes[id]
+        @processes[id].subscribe(subscriber, block)
+        @processes[id]
+
+      else
+        nil
+      end
+    end
+  end
+
+  def handler_unsubscribe(id, subscriber)
+    sync do
+      if @processes[id]
+        @processes[id].unsubscribe(subscriber)
+
+      else
+        nil
+      end
+    end
   end
 
   def sync
