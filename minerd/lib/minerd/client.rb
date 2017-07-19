@@ -72,7 +72,7 @@ class Minerd::Client
   def cmd_list(args)
     reply(Minerd::State.processes.map do |id, p|
       "#{id}: cmd=#{p.cmd}"
-    end.join("\n"))
+    end.join(';'))
   end
 
   def reply(msg)
