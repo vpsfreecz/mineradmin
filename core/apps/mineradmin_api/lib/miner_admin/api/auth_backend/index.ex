@@ -1,15 +1,15 @@
 defmodule MinerAdmin.Api.AuthBackend.Index do
   use HaveAPI.Action.Index
   alias MinerAdmin.Api
-  alias MinerAdmin.Model
+  alias MinerAdmin.Base
 
   output do
     use Api.AuthBackend.Params
   end
 
-  def authorize(_req, user), do: Model.User.admin?(user)
+  def authorize(_req, user), do: Base.User.admin?(user)
 
-  def items(_req), do: Model.Query.AuthBackend.all
+  def items(_req), do: Base.Query.AuthBackend.all
 
-  def count(_req), do: Model.Query.AuthBackend.count
+  def count(_req), do: Base.Query.AuthBackend.count
 end

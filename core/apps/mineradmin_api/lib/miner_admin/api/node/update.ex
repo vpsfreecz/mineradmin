@@ -1,7 +1,7 @@
 defmodule MinerAdmin.Api.Node.Update do
   use HaveAPI.Action.Update
   alias MinerAdmin.Api
-  alias MinerAdmin.Model
+  alias MinerAdmin.Base
 
   input do
     use Api.Node.Params, only: [:name, :domain]
@@ -11,7 +11,7 @@ defmodule MinerAdmin.Api.Node.Update do
     use Api.Node.Params
   end
 
-  def authorize(_req, user), do: Model.User.admin?(user)
+  def authorize(_req, user), do: Base.User.admin?(user)
 
   def exec(req) do
     case find(req.params[:node_id]) do
@@ -23,10 +23,10 @@ defmodule MinerAdmin.Api.Node.Update do
     end
   end
 
-  def find(id), do: Model.Query.Node.get(id)
+  def find(id), do: Base.Query.Node.get(id)
 
   def update(node, params) do
-    case Model.Query.Node.update(node, params) do
+    case Base.Query.Node.update(node, params) do
       {:ok, node} ->
         node
 

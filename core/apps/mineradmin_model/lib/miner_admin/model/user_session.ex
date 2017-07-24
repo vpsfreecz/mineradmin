@@ -3,7 +3,8 @@ defmodule MinerAdmin.Model.UserSession do
 
   require Logger
   alias MinerAdmin.Model
-  alias MinerAdmin.Model.Query
+  alias MinerAdmin.Base
+  alias MinerAdmin.Base.Query
 
   # Client API
   def start_link(session, opts) do
@@ -50,12 +51,12 @@ defmodule MinerAdmin.Model.UserSession do
     {:via, Registry, {Model.Registry, {:user_session, session.id}}}
   end
 
-  def valid_to(%Model.Schema.UserSession{auth_method: "basic"}) do
+  def valid_to(%Base.Schema.UserSession{auth_method: "basic"}) do
     :closed
   end
 
-  def valid_to(%Model.Schema.UserSession{auth_method: "token"} = session) do
-    session = Model.Repo.preload(session, [:auth_token])
+  def valid_to(%Base.Schema.UserSession{auth_method: "token"} = session) do
+    session = Base.Repo.preload(session, [:auth_token])
     case session.auth_token.lifetime do
       :permanent ->
         :infinity
@@ -94,7 +95,7 @@ defmodule MinerAdmin.Model.UserSession do
 
     case session.auth_method do
       "token" ->
-        Model.AuthToken.used(session.auth_token)
+        Base.AuthToken.used(session.auth_token)
 
       _ ->
         nil

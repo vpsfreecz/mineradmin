@@ -1,9 +1,9 @@
 defmodule MinerAdmin.Api.Node.Delete do
   use HaveAPI.Action.Delete
   alias MinerAdmin.Api
-  alias MinerAdmin.Model
+  alias MinerAdmin.Base
 
-  def authorize(_req, user), do: Model.User.admin?(user)
+  def authorize(_req, user), do: Base.User.admin?(user)
 
   def exec(req) do
     case find(req.params[:node_id]) do
@@ -15,10 +15,10 @@ defmodule MinerAdmin.Api.Node.Delete do
     end
   end
 
-  def find(id), do: Model.Query.Node.get(id)
+  def find(id), do: Base.Query.Node.get(id)
 
   def delete(node) do
-    case Model.Query.Node.delete(node) do
+    case Base.Query.Node.delete(node) do
       {:ok, _} ->
         :ok
 

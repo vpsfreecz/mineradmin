@@ -1,17 +1,17 @@
 defmodule MinerAdmin.Api.User.Index do
   use HaveAPI.Action.Index
   alias MinerAdmin.Api
-  alias MinerAdmin.Model
+  alias MinerAdmin.Base
 
   output do
     use Api.User.Params
   end
 
-  def authorize(_req, user), do: Model.User.admin?(user)
+  def authorize(_req, user), do: Base.User.admin?(user)
 
   def items(_req) do
-    Api.resourcify(Model.Query.User.all, [:auth_backend])
+    Api.resourcify(Base.Query.User.all, [:auth_backend])
   end
 
-  def count(_req), do: Model.Query.User.count
+  def count(_req), do: Base.Query.User.count
 end

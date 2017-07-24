@@ -1,9 +1,9 @@
 defmodule MinerAdmin.Api.User.Delete do
   use HaveAPI.Action.Delete
   alias MinerAdmin.Api
-  alias MinerAdmin.Model
+  alias MinerAdmin.Base
 
-  def authorize(_req, user), do: Model.User.admin?(user)
+  def authorize(_req, user), do: Base.User.admin?(user)
 
   def exec(req) do
     case find(req.params[:user_id]) do
@@ -15,10 +15,10 @@ defmodule MinerAdmin.Api.User.Delete do
     end
   end
 
-  def find(id), do: Model.Query.User.get(id)
+  def find(id), do: Base.Query.User.get(id)
 
   def delete(user) do
-    case Model.Query.User.delete(user) do
+    case Base.Query.User.delete(user) do
       {:ok, _} ->
         :ok
 

@@ -1,7 +1,7 @@
 defmodule MinerAdmin.Api.User.Update do
   use HaveAPI.Action.Update
   alias MinerAdmin.Api
-  alias MinerAdmin.Model
+  alias MinerAdmin.Base
 
   input do
     use Api.User.Params, only: [:login, :role]
@@ -12,7 +12,7 @@ defmodule MinerAdmin.Api.User.Update do
     use Api.User.Params
   end
 
-  def authorize(_req, user), do: Model.User.admin?(user)
+  def authorize(_req, user), do: Base.User.admin?(user)
 
   def exec(req) do
     case find(req.params[:user_id]) do
@@ -24,10 +24,10 @@ defmodule MinerAdmin.Api.User.Update do
     end
   end
 
-  def find(id), do: Model.Query.User.get(id)
+  def find(id), do: Base.Query.User.get(id)
 
   def update(user, params) do
-    case Model.Query.User.update(user, params) do
+    case Base.Query.User.update(user, params) do
       {:ok, user} ->
         Api.resourcify(user, [:auth_backend])
 

@@ -1,7 +1,7 @@
 defmodule MinerAdmin.Api.User.Create do
   use HaveAPI.Action.Create
   alias MinerAdmin.Api
-  alias MinerAdmin.Model
+  alias MinerAdmin.Base
 
   input do
     use Api.User.Params, only: [:login, :role, :auth_backend]
@@ -15,10 +15,10 @@ defmodule MinerAdmin.Api.User.Create do
     use Api.User.Params
   end
 
-  def authorize(_req, user), do: Model.User.admin?(user)
+  def authorize(_req, user), do: Base.User.admin?(user)
 
   def exec(req) do
-    case Model.Query.User.create(Api.associatify(req.input, [:auth_backend])) do
+    case Base.Query.User.create(Api.associatify(req.input, [:auth_backend])) do
       {:ok, user} ->
         Api.resourcify(user, [:auth_backend])
 

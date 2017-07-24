@@ -1,7 +1,7 @@
 defmodule MinerAdmin.Api.Node.Create do
   use HaveAPI.Action.Create
   alias MinerAdmin.Api
-  alias MinerAdmin.Model
+  alias MinerAdmin.Base
 
   input do
     use Api.Node.Params, only: [:name, :domain]
@@ -11,10 +11,10 @@ defmodule MinerAdmin.Api.Node.Create do
     use Api.Node.Params
   end
 
-  def authorize(_req, user), do: Model.User.admin?(user)
+  def authorize(_req, user), do: Base.User.admin?(user)
 
   def exec(req) do
-    case Model.Query.Node.create(req.input) do
+    case Base.Query.Node.create(req.input) do
       {:ok, node} ->
         node
 

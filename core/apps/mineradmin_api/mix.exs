@@ -19,7 +19,7 @@ defmodule MinerAdmin.Api.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger, :cowboy, :plug],
+    [extra_applications: [:logger, :cowboy, :plug, :mineradmin_model],
      mod: {MinerAdmin.Api.Application, []}]
   end
 
@@ -38,6 +38,7 @@ defmodule MinerAdmin.Api.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [{:haveapi, path: "/home/aither/workspace/elixir/haveapi"},
+     {:mineradmin_base, in_umbrella: true},
      {:mineradmin_model, in_umbrella: true}]
   end
 end

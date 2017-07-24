@@ -19,7 +19,7 @@ defmodule MinerAdmin.Model.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger, :ecto, :postgrex],
+    [extra_applications: [:logger, :mineradmin_base],
      mod: {MinerAdmin.Model.Application, []}]
   end
 
@@ -37,10 +37,6 @@ defmodule MinerAdmin.Model.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:ecto, "~> 2.1"},
-     {:postgrex, "~> 0.11"},
-     {:ecto_enum, "~> 1.0"},
-     {:timex, "~> 3.1"},
-     {:haveapi_client, path: "/home/aither/workspace/elixir/haveapi_client"}]
+    [{:mineradmin_base, in_umbrella: true}]
   end
 end

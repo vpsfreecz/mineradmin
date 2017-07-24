@@ -11,8 +11,7 @@ defmodule MinerAdmin.Model.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Starts a worker by calling: MinerAdmin.Model.Worker.start_link(arg1, arg2, arg3)
-      supervisor(Model.Repo, []),
+      # Starts a worker by calling: MinerAdmin.Base.Worker.start_link(arg1, arg2, arg3)
       supervisor(Registry, [:unique, Model.Registry]),
       supervisor(Model.Supervisor, []),
     ]

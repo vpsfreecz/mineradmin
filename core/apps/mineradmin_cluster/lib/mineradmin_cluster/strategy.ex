@@ -7,7 +7,7 @@ defmodule MinerAdmin.Cluster.Strategy do
     list_nodes = Keyword.fetch!(opts, :list_nodes)
 
     nodes = Enum.map(
-      MinerAdmin.Model.Query.Node.all,
+      MinerAdmin.Base.Query.Node.all,
       &(String.to_atom(&1.name <> "@" <> &1.domain))
     )
 

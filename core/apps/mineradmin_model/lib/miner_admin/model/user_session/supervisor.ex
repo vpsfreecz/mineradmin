@@ -1,5 +1,6 @@
 defmodule MinerAdmin.Model.UserSession.Supervisor do
   use Supervisor
+  alias MinerAdmin.Base
   alias MinerAdmin.Model
   require Logger
 
@@ -16,7 +17,7 @@ defmodule MinerAdmin.Model.UserSession.Supervisor do
   end
 
   defp active_sessions do
-    for s <- Model.Query.UserSession.active_sessions do
+    for s <- Base.Query.UserSession.active_sessions do
       Logger.debug "Monitoring user session #{s.id}"
 
       worker_spec(s)

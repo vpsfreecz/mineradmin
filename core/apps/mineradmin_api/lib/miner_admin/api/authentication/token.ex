@@ -1,10 +1,11 @@
 defmodule MinerAdmin.Api.Authentication.Token do
   use HaveAPI.Authentication.Token
   alias MinerAdmin.Model
-  alias MinerAdmin.Model.Query
+  alias MinerAdmin.Base
+  alias MinerAdmin.Base.Query
 
   def find_user_by_credentials(_conn, username, password) do
-    case Model.User.authenticate(username, password) do
+    case Base.User.authenticate(username, password) do
       {:ok, user} ->
         user
 
