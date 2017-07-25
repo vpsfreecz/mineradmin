@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+require 'optparse'
+
+GPU_COUNT = 5
+
+def uuid(i)
+  sprintf("GPU-00000000-1111-2222-3333-%012d", i)
+end
+
+def select_attrs(fields, data)
+  ret = []
+
+  fields.each do |f|
+    fail "field '#{f}' not supported" if !data.has_key?(f)
+    ret << data[f]
+  end
+
+  ret
+end
+
+def list(_)
+  puts Array.new(GPU_COUNT) { |i| "GPU #{i}: #{uuid(i)}" }.join("\n")
+end
+
+def query_gpus(opts)
+  if !opts[:format] || !opts[:format][:csv]
+    fail "--format=csv needed"
+  end
+
+  unless opts[:format][:noheader]
+    puts opts[:fields].join(", ")
+  end
+
+  puts(Array.new(GPU_COUNT) do |i|
+    select_attrs(opts[:fields], {
+      'index' => i,
+      'name' => 'GeForce GTX 1080',
+      'uuid' => uuid(i),
+    }).join(', ')
+  end.join("\n"))
+end
+
+def run
+  action = nil
+  options = {}
+
+  OptionParser.new do |opts|
+    opts.on('-L', '--list-gpus', 'Display a list of GPUs connected to the system.') do
+      action = :list
+    end
+
+    opts.on('--query-gpus FIELDS', 'Information about GPU.') do |fields|
+      action = :query_gpus
+      options[:fields] = fields.strip.split(',')
+    end
+
+    opts.on('--format FORMAT', 'Comma separated list of format options: csv,noheader,nounits') do |fmt|
+      fmts = fmt.strip.split(',')
+      options[:format] = {
+        csv: fmts.include?('csv'),
+        noheader: fmts.include?('noheader'),
+        nounits: fmts.include?('nounits'),
+      }
+    end
+  end.parse!
+
+  if action.nil?
+    warn "Action not supported"
+    exit(false)
+  end
+
+  method(action).call(options)
+end
+
+run
