@@ -29,4 +29,4 @@ use Mix.Config
 #
 #     import_config "#{Mix.env}.exs"
 
-config :mineradmin_base, ecto_repos: []
+config :mineradmin_model, ecto_repos: []
