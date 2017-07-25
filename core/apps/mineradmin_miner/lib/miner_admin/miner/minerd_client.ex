@@ -128,7 +128,7 @@ defmodule MinerAdmin.Miner.MinerdClient do
   end
 
   def handle_info({:tcp_closed, _socket}, state) do
-    {:stop, :normal, state}
+    {:stop, :closed, state}
   end
 
   def handle_info({:tcp_error, _socket, reason}, state) do
