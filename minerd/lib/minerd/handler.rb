@@ -3,7 +3,7 @@ require 'thread'
 class Minerd::Handler
   class AlreadyStarted < StandardError ; end
 
-  attr_accessor :id, :cmd, :args
+  attr_accessor :id, :cmd, :args, :started_at
 
   def self.run(id, cmd, args)
     h = new(id, cmd, args)
@@ -21,6 +21,7 @@ class Minerd::Handler
 
   def start
     @thread = Thread.new do
+      @started_at = Time.now
       @io = IO.popen(wrapped, 'r+')
       puts "Process started with PID #{@io.pid}"
 
@@ -63,7 +64,7 @@ class Minerd::Handler
 
   def info
     sync do
-      {id: id, cmd: cmd, args: args, pid: @io.pid}
+      {id: id, cmd: cmd, args: args, pid: @io.pid, started_at: @started_at.to_i}
     end
   end
 

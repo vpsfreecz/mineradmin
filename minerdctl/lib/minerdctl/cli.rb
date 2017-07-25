@@ -62,11 +62,18 @@ class Minerdctl::Cli
   end
 
   def run_list(args)
-    fmt = '%10s %10s  %-25s %s'
-    puts sprintf(fmt, 'ID', 'PID', 'CMD', 'ARGS')
+    fmt = '%10s %10s  %-18.16s %-25s %s'
+    puts sprintf(fmt, 'ID', 'PID', 'TIME', 'CMD', 'ARGS')
 
     JSON.parse(@client.list.strip, symbolize_names: true).each do |cmd|
-      puts sprintf(fmt, cmd[:id], cmd[:pid], cmd[:cmd], cmd[:args])
+      puts sprintf(
+        fmt,
+        cmd[:id],
+        cmd[:pid],
+        format_duration(Time.now.to_i - cmd[:started_at]),
+        cmd[:cmd],
+        cmd[:args]
+      )
     end
   end
 
@@ -85,5 +92,19 @@ class Minerdctl::Cli
 
     i = Minerdctl::Interactive.new(@client.socket)
     i.start
+  end
+
+  protected
+  def format_duration(interval)
+    d = interval / 86400
+    h = interval / 3600 % 24
+    m = interval / 60 % 60
+    s = interval % 60
+
+    if d > 0
+      "%d days, %02d:%02d:%02d" % [d, h, m, s]
+    else
+      "%02d:%02d:%02d" % [h, m, s]
+    end
   end
 end
