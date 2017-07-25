@@ -15,4 +15,15 @@ defmodule MinerAdmin.Base.Schema.Gpu do
 
     timestamps()
   end
+
+  def create_changeset(gpu, params \\ %{}) do
+    fields = ~w(user_id node_id vendor uuid)a
+
+    gpu
+    |> cast(params, fields)
+    |> validate_required(fields)
+    |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:node_id)
+    |> unique_constraint(:uuid, name: :gpus_node_id_uuid_index)
+  end
 end
