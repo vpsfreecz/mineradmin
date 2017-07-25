@@ -61,6 +61,12 @@ class Minerd::Handler
     end
   end
 
+  def info
+    sync do
+      {id: id, cmd: cmd, args: args, pid: @io.pid}
+    end
+  end
+
   protected
   def distribute(data)
     sync { @subscribers.each { |_, block| block.call(:data, data) } }

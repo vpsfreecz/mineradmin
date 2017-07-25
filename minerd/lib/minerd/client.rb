@@ -1,3 +1,5 @@
+require 'json'
+
 class Minerd::Client
   def initialize(socket)
     @socket = socket
@@ -70,9 +72,7 @@ class Minerd::Client
   end
 
   def cmd_list(args)
-    reply(Minerd::State.processes.map do |id, p|
-      "#{id}: cmd=#{p.cmd}"
-    end.join(';'))
+    reply(JSON.dump(Minerd::State.processes.map { |_, p| p.info }))
   end
 
   def cmd_attach(args)

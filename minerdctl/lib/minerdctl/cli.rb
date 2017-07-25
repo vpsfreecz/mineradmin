@@ -1,3 +1,5 @@
+require 'json'
+
 class Minerdctl::Cli
   COMMANDS = %w(status start stop list attach)
 
@@ -60,7 +62,12 @@ class Minerdctl::Cli
   end
 
   def run_list(args)
-    puts @client.list.split(';').join("\n")
+    fmt = '%10s %10s  %-25s %s'
+    puts sprintf(fmt, 'ID', 'PID', 'CMD', 'ARGS')
+
+    JSON.parse(@client.list.strip, symbolize_names: true).each do |cmd|
+      puts sprintf(fmt, cmd[:id], cmd[:pid], cmd[:cmd], cmd[:args])
+    end
   end
 
   def run_attach(args)

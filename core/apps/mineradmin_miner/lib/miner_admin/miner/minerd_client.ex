@@ -153,21 +153,7 @@ defmodule MinerAdmin.Miner.MinerdClient do
   end
 
   defp handle_resp({:list, from}, msg, state) do
-    ret = msg
-      |> to_string
-      |> String.split(";")
-      |> Enum.reduce([], fn
-         "\n", acc ->
-           acc
-
-         item, acc ->
-           [id, rest] = String.split(item, ":")
-           "cmd=" <> cmd = String.strip(rest)
-           [{id, cmd} | acc]
-         end)
-      |> Enum.reverse()
-
-    GenServer.reply(from, ret)
+    GenServer.reply(from, Poison.decode!(msg, keys: :atoms))
     state
   end
 

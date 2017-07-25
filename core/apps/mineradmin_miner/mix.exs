@@ -37,6 +37,7 @@ defmodule MinerAdmin.Miner.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:mineradmin_base, in_umbrella: true}]
+    [{:mineradmin_base, in_umbrella: true},
+     {:poison, "~> 3.0"}]
   end
 end
