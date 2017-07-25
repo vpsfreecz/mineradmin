@@ -2,6 +2,8 @@ defmodule MinerAdmin.Api do
   @doc """
   Replace Ecto associations with values accepted by HaveAPI as output parameters.
   """
+  def resourcify(nil, _associations), do: nil
+
   def resourcify(list, associations) when is_list(list) do
     Enum.map(list, &(resourcify(&1, associations)))
   end
@@ -16,7 +18,7 @@ defmodule MinerAdmin.Api do
     )
   end
 
-  @ doc """
+  @doc """
   Convert HaveAPI resource input parameters into fields understood by Ecto.
   """
   def associatify(data, associations) when is_map(data) do
