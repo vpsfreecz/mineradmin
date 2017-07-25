@@ -38,7 +38,12 @@ class Minerd::Client
   end
 
   def cmd_status(args)
-    reply('OK')
+    return reply('OK') if args.size == 0
+
+    h = Minerd::State.handler_by_id(args[0])
+
+    return reply('NOT FOUND') unless h
+    reply(JSON.dump(h.info))
   end
 
   def cmd_start(args)

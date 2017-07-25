@@ -38,7 +38,19 @@ class Minerdctl::Cli
   end
 
   def run_status(args)
-    puts @client.status()
+    if args.size > 0
+      ret = @client.status(args[0])
+
+      if ret == 'NOT FOUND'
+        puts ret
+        return
+      end
+
+      print_processes([JSON.parse(ret, symbolize_names: true)])
+
+    else
+      puts @client.status
+    end
   end
 
   def run_start(args)
@@ -62,19 +74,7 @@ class Minerdctl::Cli
   end
 
   def run_list(args)
-    fmt = '%10s %10s  %-18.16s %-25s %s'
-    puts sprintf(fmt, 'ID', 'PID', 'TIME', 'CMD', 'ARGS')
-
-    JSON.parse(@client.list.strip, symbolize_names: true).each do |cmd|
-      puts sprintf(
-        fmt,
-        cmd[:id],
-        cmd[:pid],
-        format_duration(Time.now.to_i - cmd[:started_at]),
-        cmd[:cmd],
-        cmd[:args]
-      )
-    end
+    print_processes(JSON.parse(@client.list, symbolize_names: true))
   end
 
   def run_attach(args)
@@ -95,6 +95,22 @@ class Minerdctl::Cli
   end
 
   protected
+  def print_processes(processes)
+    fmt = '%10s %10s  %-18.16s %-25s %s'
+    puts sprintf(fmt, 'ID', 'PID', 'TIME', 'CMD', 'ARGS')
+
+    processes.each do |cmd|
+      puts sprintf(
+        fmt,
+        cmd[:id],
+        cmd[:pid],
+        format_duration(Time.now.to_i - cmd[:started_at]),
+        cmd[:cmd],
+        cmd[:args]
+      )
+    end
+  end
+
   def format_duration(interval)
     d = interval / 86400
     h = interval / 3600 % 24

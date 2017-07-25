@@ -30,6 +30,10 @@ defmodule MinerAdmin.Miner.MinerdClient do
     GenServer.call(pid, :status)
   end
 
+  def status(pid, id) do
+    GenServer.call(pid, {:status, id})
+  end
+
   def list(pid) do
     GenServer.call(pid, :list)
   end
@@ -71,6 +75,11 @@ defmodule MinerAdmin.Miner.MinerdClient do
   def handle_call(:status, from, state) do
     :gen_tcp.send(state.socket, "STATUS\n")
     {:noreply, %{state | queue: :queue.in({:status, from}, state.queue)}}
+  end
+
+  def handle_call({:status, id}, from, state) do
+    :gen_tcp.send(state.socket, "STATUS #{id}\n")
+    {:noreply, %{state | queue: :queue.in({{:status, id}, from}, state.queue)}}
   end
 
   def handle_call(:list, from, state) do
@@ -119,7 +128,7 @@ defmodule MinerAdmin.Miner.MinerdClient do
 
   def handle_info({:tcp, _socket, msg}, %{mode: :cmd} = state) do
     {{:value, item}, queue} = :queue.out(state.queue)
-    {:noreply, handle_resp(item, msg, %{state | queue: queue})}
+    {:noreply, handle_resp(item, decode(msg), %{state | queue: queue})}
   end
 
   def handle_info({:tcp, _socket, msg}, %{mode: :attached} = state) do
@@ -152,16 +161,28 @@ defmodule MinerAdmin.Miner.MinerdClient do
     end
   end
 
+  defp handle_resp({{:status, _id}, from}, "NOT FOUND" = msg, state) do
+    GenServer.reply(from, {:error, msg})
+    state
+  end
+
+  defp handle_resp({{:status, _id}, from}, msg, state) do
+    GenServer.reply(from, Poison.decode!(msg, keys: :atoms))
+    state
+  end
+
   defp handle_resp({:list, from}, msg, state) do
     GenServer.reply(from, Poison.decode!(msg, keys: :atoms))
     state
   end
 
   defp handle_resp({_cmd, from}, msg, state) do
-    GenServer.reply(from, msg |> to_string() |> String.strip() |> parse_resp())
+    GenServer.reply(from, parse_resp(msg))
     state
   end
 
   defp parse_resp("OK"), do: :ok
   defp parse_resp(msg), do: {:error, msg}
+
+  defp decode(msg), do: msg |> to_string() |> String.strip()
 end

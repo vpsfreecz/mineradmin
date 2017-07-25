@@ -11,8 +11,8 @@ class Minerdctl::Client
     @socket.close
   end
 
-  def status
-    cmd('STATUS')
+  def status(id = nil)
+    cmd('STATUS', *(id ? [id] : []))
   end
 
   def start(id, cmd, args)
@@ -34,6 +34,6 @@ class Minerdctl::Client
   protected
   def cmd(cmd, *args)
     @socket.puts("#{cmd} #{args.join(' ')}")
-    @socket.readline
+    @socket.readline.strip
   end
 end

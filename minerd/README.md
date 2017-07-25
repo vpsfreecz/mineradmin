@@ -9,10 +9,10 @@ Minerd replies to every message.
 
 There are four commands:
 
- - `STATUS` - returns OK, will return more information in the future
+ - `STATUS [id]` - returns OK without `id`, process info when `id` is set
  - `START <id> <cmd> [args...]` - start a process identified by `id`
  - `STOP <id>` - stop process identified by `id`
- - `LIST` - list active processes
+ - `LIST` - list active processes, JSON encoded
  - `ATTACH <id>` - switch into interactive mode, where the client can send
    data to running program's stdin and receives data from stdout/stderr. When
    in this mode, the following commands are available:
