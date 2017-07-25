@@ -9,4 +9,6 @@ cluster runs only what it needs:
    that is common for all nodes
  - Model - for now, should run exactly once in a cluster
  - Cluster - simple app that ensures that nodes within the cluster are connected
+ - Miner - application running on all worker nodes, serving as an interface
+   to Minerd
  - API - public API, uses `model` and `base`

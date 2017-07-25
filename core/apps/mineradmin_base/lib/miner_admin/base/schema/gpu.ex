@@ -26,4 +26,9 @@ defmodule MinerAdmin.Base.Schema.Gpu do
     |> foreign_key_constraint(:node_id)
     |> unique_constraint(:uuid, name: :gpus_node_id_uuid_index)
   end
+
+  def update_changeset(gpu, params \\ %{}) do
+    gpu
+    |> cast(params, [:name])
+  end
 end
