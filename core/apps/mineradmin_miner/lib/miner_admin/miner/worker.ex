@@ -1,0 +1,133 @@
+defmodule MinerAdmin.Miner.Worker do
+  use GenServer
+  alias MinerAdmin.Miner
+  alias MinerAdmin.Base
+
+  # Client API
+  def start_link(prog, opts) do
+    GenServer.start_link(__MODULE__, %{
+      program: prog,
+      minerd: nil,
+      id: nil,
+      running: nil,
+    }, opts)
+  end
+
+  def remove(prog) do
+    GenServer.stop(via_tuple(prog), :normal)
+  end
+
+  def start(prog) do
+    GenServer.call(via_tuple(prog), {:start, prog})
+  end
+
+  def stop(prog) do
+    GenServer.call(via_tuple(prog), {:stop, prog})
+  end
+
+  def running?(prog) do
+    GenServer.call(via_tuple(prog), :running?)
+  end
+
+  def via_tuple(prog) do
+    {:via, Registry, {Miner.Registry, {:worker, prog.id}}}
+  end
+
+  # Server implementation
+  def init(state) do
+    Process.flag(:trap_exit, true)
+    GenServer.cast(self(), :startup)
+    {:ok, state}
+  end
+
+  def handle_cast(:startup, state) do
+    {:ok, pid} = Miner.MinerdClient.start_link
+
+    startup(%{state | minerd: pid}, state.program.active)
+  end
+
+  def handle_call({:start, prog}, _from, state) do
+    if state.running do
+      {:reply, :already_running, state}
+
+    else
+      case do_start(%{state | program: prog}) do
+        {:ok, state} ->
+          {:reply, :ok, state}
+
+        {:error, msg, state} ->
+          {:stop, msg, state}
+      end
+    end
+  end
+
+  def handle_call({:stop, prog}, _from, state) do
+    if state.running do
+      :ok = Miner.MinerdClient.detach(state.minerd)
+      :ok = Miner.MinerdClient.stop(state.minerd, state.id)
+      {:reply, :ok, %{state | program: prog, running: false}}
+
+    else
+      {:reply, :not_started, state}
+    end
+  end
+
+  def handle_call(:running?, _from, state) do
+    {:reply, state.running, state}
+  end
+
+  def handle_info({:EXIT, _from, :closed}, state) do
+    # Restart the server, open new connection to minerd
+    handle_cast(:startup, %{state | minerd: nil, running: false})
+  end
+
+  def handle_info({:minerd, _from, data}, state) do
+    IO.puts "received data"
+    IO.inspect data
+    {:noreply, state}
+  end
+
+  def terminate(:normal, state) do
+    if state.running do
+      :ok = Miner.MinerdClient.detach(state.minerd)
+      :ok = Miner.MinerdClient.stop(state.minerd, state.id)
+    end
+
+    :ok
+  end
+
+  defp startup(state, true) do
+    case do_start(state) do
+      {:ok, state} ->
+        {:noreply, state}
+
+      {:error, msg, state} ->
+        {:stop, msg, state}
+    end
+  end
+
+  defp startup(state, false) do
+    {:noreply, %{state | running: false}}
+  end
+
+  defp do_start(state) do
+    {id, cmd, args} = Base.Program.command(state.program)
+
+    case Miner.MinerdClient.start(state.minerd, id, cmd, args) do
+      :ok ->
+        {:ok, do_attach(state, id)}
+
+      {:error, "ALREADY STARTED"} ->
+        {:ok, do_attach(state, id)}
+
+      {:error, msg} ->
+        {:error, msg, %{state | running: false}}
+    end
+  end
+
+  defp do_attach(state, id) do
+    IO.puts "attaching to #{id}"
+    :ok = Miner.MinerdClient.attach(state.minerd, id, self())
+    %{state | id: id, running: true}
+  end
+end

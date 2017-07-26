@@ -7,7 +7,7 @@ defmodule MinerAdmin.Api.Node.Index do
     use Api.Node.Params
   end
 
-  def authorize(_req, user), do: Base.User.admin?(user)
+  def authorize(_req, user), do: :allow
 
   def items(_req), do: Base.Query.Node.all
 

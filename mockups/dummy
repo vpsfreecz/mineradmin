@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# This program simply echoes a message every 5 seconds. Everything it reads
+# from stdin prints in capitals.
+
+loop do
+  ret = IO.select([$stdin], [], [], 5)
+
+  if ret.nil?
+    puts "The time is up"
+    next
+  end
+
+  puts "READ: #{$stdin.readline.upcase}"
+end

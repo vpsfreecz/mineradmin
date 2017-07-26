@@ -6,6 +6,9 @@ defmodule MinerAdmin.Base.Schema.Node do
     field :name, :string
     field :domain, :string
 
+    has_many :gpus, Schema.Gpu
+    has_many :user_programs, Schema.UserProgram
+
     timestamps()
   end
 

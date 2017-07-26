@@ -13,6 +13,8 @@ defmodule MinerAdmin.Api.Router do
       Api.User,
       Api.Node,
       Api.Gpu,
+      Api.Program,
+      Api.UserProgram,
     ]
   end
 

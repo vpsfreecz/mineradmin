@@ -13,6 +13,8 @@ defmodule MinerAdmin.Base.Schema.Gpu do
     field :uuid, :string
     field :name, :string
 
+    many_to_many :user_programs, Schema.UserProgram, join_through: "user_program_gpus"
+
     timestamps()
   end
 
