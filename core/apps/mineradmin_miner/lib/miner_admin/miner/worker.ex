@@ -1,5 +1,6 @@
 defmodule MinerAdmin.Miner.Worker do
   use GenServer
+  require Logger
   alias MinerAdmin.Miner
   alias MinerAdmin.Base
 
@@ -10,6 +11,7 @@ defmodule MinerAdmin.Miner.Worker do
       minerd: nil,
       id: nil,
       running: nil,
+      subscribers: [],
     }, opts)
   end
 
@@ -23,6 +25,10 @@ defmodule MinerAdmin.Miner.Worker do
 
   def stop(prog) do
     GenServer.call(via_tuple(prog), {:stop, prog})
+  end
+
+  def attach(prog, receiver) do
+    GenServer.call(via_tuple(prog), {:attach, receiver})
   end
 
   def running?(prog) do
@@ -72,18 +78,53 @@ defmodule MinerAdmin.Miner.Worker do
     end
   end
 
+  def handle_call({:attach, receiver}, _from, state) do
+    ref = Process.monitor(receiver)
+    myself = self()
+    write = fn data -> send(myself, {:write_encoded, data}) end
+    resize = fn w, h -> send(myself, {:resize, w, h}) end
+
+    Logger.debug "Attaching socket subscriber to miner worker"
+
+    {
+      :reply,
+      {:ok, self(), %{write: write, resize: resize}},
+      %{state | subscribers: [{ref, receiver} | state.subscribers]}
+    }
+  end
+
   def handle_call(:running?, _from, state) do
     {:reply, state.running, state}
   end
 
+  # MinerdClient exited
   def handle_info({:EXIT, _from, :closed}, state) do
     # Restart the server, open new connection to minerd
     handle_cast(:startup, %{state | minerd: nil, running: false})
   end
 
+  # A subscriber has exited
+  def handle_info({:DOWN, ref, :process, pid, reason}, state) do
+    Logger.debug "Subscriber has exited with #{reason}"
+    {:noreply, update_in(state.subscribers, &List.delete(&1, {ref, pid}))}
+  end
+
+  # Output from MinerdClient
   def handle_info({:minerd, _from, data}, state) do
-    IO.puts "received data"
-    IO.inspect data
+    for {_ref, sub} <- state.subscribers do
+      send(sub, {:user_program, :output, data})
+    end
+
+    {:noreply, state}
+  end
+
+  def handle_info({:write_encoded, data}, state) do
+    Miner.MinerdClient.write_encoded(state.minerd, data)
+    {:noreply, state}
+  end
+
+  def handle_info({:resize, w, h}, state) do
+    Miner.MinerdClient.resize(state.minerd, w, h)
     {:noreply, state}
   end
 
@@ -126,7 +167,7 @@ defmodule MinerAdmin.Miner.Worker do
   end
 
   defp do_attach(state, id) do
-    IO.puts "attaching to #{id}"
+    Logger.debug "Attaching to minerd process #{id}"
     :ok = Miner.MinerdClient.attach(state.minerd, id, self())
     %{state | id: id, running: true}
   end

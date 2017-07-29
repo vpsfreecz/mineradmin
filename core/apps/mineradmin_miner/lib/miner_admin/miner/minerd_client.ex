@@ -54,6 +54,10 @@ defmodule MinerAdmin.Miner.MinerdClient do
     GenServer.cast(pid, {:write, data})
   end
 
+  def write_encoded(pid, data) do
+    GenServer.cast(pid, {:write_encoded, data})
+  end
+
   def resize(pid, width, height) do
     GenServer.cast(pid, {:resize, width, height})
   end
@@ -118,6 +122,11 @@ defmodule MinerAdmin.Miner.MinerdClient do
 
   def handle_cast({:write, data}, %{mode: :attached} = state) do
     :gen_tcp.send(state.socket, "W #{Base.encode64(data)}\n")
+    {:noreply, state}
+  end
+
+  def handle_cast({:write_encoded, data}, %{mode: :attached} = state) do
+    :gen_tcp.send(state.socket, "W #{data}\n")
     {:noreply, state}
   end
 

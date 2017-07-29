@@ -55,6 +55,13 @@ defmodule MinerAdmin.Miner.Dispatcher do
     )
   end
 
+  def attach(user_prog, receiver) do
+    GenServer.call(
+      {__MODULE__, Base.UserProgram.node_name(user_prog)},
+      {:attach, user_prog, receiver}
+    )
+  end
+
   # Server implementation
   def init(nil) do
     {:ok, nil}
@@ -74,5 +81,9 @@ defmodule MinerAdmin.Miner.Dispatcher do
 
   def handle_call({:stop, user_prog}, _from, nil) do
     {:reply, Miner.Worker.stop(user_prog), nil}
+  end
+
+  def handle_call({:attach, user_prog, receiver}, _from, nil) do
+    {:reply, Miner.Worker.attach(user_prog, receiver), nil}
   end
 end
