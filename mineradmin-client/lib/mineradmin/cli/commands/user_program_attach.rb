@@ -87,6 +87,10 @@ module MinerAdmin::CLI::Commands
 
     def options(opts)
       @opts = {}
+
+      opts.on('--[no-]tty', 'Toggle TTY control') do |tty|
+        @opts[:tty] = tty
+      end
     end
 
     def exec(args)
@@ -95,7 +99,7 @@ module MinerAdmin::CLI::Commands
         exit(false)
       end
 
-      raw_mode do
+      tty do
         EventMachine.run do
           ws = WebSocketHandler.connect(
             uri: File.join(
@@ -135,14 +139,28 @@ module MinerAdmin::CLI::Commands
     end
 
     protected
+    def tty(&block)
+      if @opts[:tty].nil?
+        if $stdout.tty?
+          raw_mode(&block)
+
+        else
+          block.call
+        end
+
+      elsif @opts[:tty] === true
+        raw_mode(&block)
+
+      else
+        block.call
+      end
+    end
+
     def raw_mode
       state = `stty -g`
       `stty raw -echo -icanon -isig`
 
-      pid = Process.fork do
-        yield
-      end
-
+      pid = Process.fork { yield }
       Process.wait(pid)
 
       `stty #{state}`
