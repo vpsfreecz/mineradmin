@@ -119,7 +119,15 @@ module MinerAdmin::CLI::Commands
           end
 
           ws.onerror do |error|
-            puts "Error occurred: #{error}"
+            reset_tty
+            warn "Error occurred: #{error}"
+
+            if error == "invalid_status_code"
+              warn "\nPossible reasons:"
+              warn "  - Authentication failure, i.e. incorrect username or password"
+              warn "  - Invalid user program ID"
+            end
+
             EM.stop
           end
 
@@ -172,14 +180,18 @@ module MinerAdmin::CLI::Commands
     end
 
     def raw_mode
-      state = `stty -g`
+      @state = `stty -g`
       `stty raw -echo -icanon -isig`
 
       pid = Process.fork { yield }
       Process.wait(pid)
 
-      `stty #{state}`
+      reset_tty
       puts
+    end
+
+    def reset_tty
+      `stty #{@state}`
     end
   end
 end
