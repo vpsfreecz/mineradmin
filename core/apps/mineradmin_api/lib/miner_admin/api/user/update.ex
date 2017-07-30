@@ -12,7 +12,7 @@ defmodule MinerAdmin.Api.User.Update do
     use Api.User.Params
   end
 
-  def authorize(_req, user), do: Base.User.admin?(user)
+  def authorize(_req, user), do: Api.Authorize.admin(user)
 
   def exec(req) do
     case find(req.params[:user_id]) do

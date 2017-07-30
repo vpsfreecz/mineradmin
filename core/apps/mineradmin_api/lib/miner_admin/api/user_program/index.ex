@@ -7,9 +7,7 @@ defmodule MinerAdmin.Api.UserProgram.Index do
     use Api.UserProgram.Params
   end
 
-  def authorize(_req, user) do
-    Base.User.admin?(user)
-  end
+  def authorize(_req, _user), do: :allow
 
   def items(req) do
     Api.resourcify(Base.Query.UserProgram.all(req.user), [:user, :program, :node])

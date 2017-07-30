@@ -13,7 +13,7 @@ defmodule MinerAdmin.Api.UserProgram.Gpu.Create do
     use Api.UserProgram.Gpu.Params
   end
 
-  def authorize(_req, user), do: Base.User.admin?(user)
+  def authorize(_req, user), do: Api.Authorize.admin(user)
 
   def exec(req) do
     case find_prog(req.params[:userprogram_id], req.user) do

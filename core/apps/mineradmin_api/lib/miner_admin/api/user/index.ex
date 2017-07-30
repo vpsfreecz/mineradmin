@@ -7,7 +7,7 @@ defmodule MinerAdmin.Api.User.Index do
     use Api.User.Params
   end
 
-  def authorize(_req, user), do: Base.User.admin?(user)
+  def authorize(_req, user), do: Api.Authorize.admin(user)
 
   def items(_req) do
     Api.resourcify(Base.Query.User.all, [:auth_backend])

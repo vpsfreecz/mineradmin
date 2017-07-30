@@ -81,7 +81,7 @@ defmodule MinerAdmin.Api.UserProgram.WebSocket do
   end
 
   defp authorized?(user, user_prog) do
-    Base.User.admin?(user) == :allow || user_prog.user_id == user.id
+    Base.User.admin?(user) || user_prog.user_id == user.id
   end
 
   defp subscribe(user_prog) do

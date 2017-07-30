@@ -16,7 +16,7 @@ defmodule MinerAdmin.Api.UserProgram.Create do
     use Api.UserProgram.Params
   end
 
-  def authorize(_req, user), do: Base.User.admin?(user)
+  def authorize(_req, user), do: Api.Authorize.admin(user)
 
   def exec(req) do
     case Base.UserProgram.create(Api.associatify(req.input, [:user, :program, :node])) do

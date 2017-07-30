@@ -21,9 +21,5 @@ defmodule MinerAdmin.Base.User do
     end
   end
 
-  # TODO: should return true/false and let controllers translate that to
-  #   allow/deny
-  def admin?(user) do
-    if user.role == 0, do: :allow, else: :deny
-  end
+  def admin?(user), do: user.role == 0
 end

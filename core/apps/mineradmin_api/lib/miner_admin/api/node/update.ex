@@ -11,7 +11,7 @@ defmodule MinerAdmin.Api.Node.Update do
     use Api.Node.Params
   end
 
-  def authorize(_req, user), do: Base.User.admin?(user)
+  def authorize(_req, user), do: Api.Authorize.admin(user)
 
   def exec(req) do
     case find(req.params[:node_id]) do

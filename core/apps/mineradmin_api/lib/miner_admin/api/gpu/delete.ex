@@ -3,7 +3,7 @@ defmodule MinerAdmin.Api.Gpu.Delete do
   alias MinerAdmin.Api
   alias MinerAdmin.Base
 
-  def authorize(_req, user), do: Base.User.admin?(user)
+  def authorize(_req, user), do: Api.Authorize.admin(user)
 
   def exec(req) do
     case find(req.params[:gpu_id], req.user) do
