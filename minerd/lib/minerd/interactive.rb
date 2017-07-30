@@ -54,7 +54,7 @@ class Minerd::Interactive
       end
     end
 
-  rescue IOError
+  rescue IOError, Errno::ECONNRESET
 
   ensure
     Minerd::State.handler_unsubscribe(@id, self)

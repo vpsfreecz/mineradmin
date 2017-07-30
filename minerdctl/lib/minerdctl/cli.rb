@@ -41,15 +41,15 @@ class Minerdctl::Cli
     if args.size > 0
       ret = @client.status(args[0])
 
-      if ret == 'NOT FOUND'
-        puts ret
+      if ret.message == 'NOT FOUND'
+        puts ret.message
         return
       end
 
-      print_processes([JSON.parse(ret, symbolize_names: true)])
+      print_processes([ret.response])
 
     else
-      puts @client.status
+      puts_resp(@client.status)
     end
   end
 
@@ -61,7 +61,7 @@ class Minerdctl::Cli
 
     id, cmd = args
 
-    puts @client.start(id, cmd, args[2..-1])
+    puts_resp(@client.start(id, cmd, args[2..-1]))
   end
 
   def run_stop(args)
@@ -70,11 +70,11 @@ class Minerdctl::Cli
       exit(false)
     end
 
-    puts @client.stop(args[0])
+    puts_resp(@client.stop(args[0]))
   end
 
   def run_list(args)
-    print_processes(JSON.parse(@client.list, symbolize_names: true))
+    print_processes(@client.list.response)
   end
 
   def run_attach(args)
@@ -83,10 +83,10 @@ class Minerdctl::Cli
       exit(false)
     end
 
-    ret = @client.attach(args[0]).strip
+    resp = @client.attach(args[0])
 
-    if ret != 'OK'
-      warn "Unable to attach #{args[0]}: #{ret}"
+    unless resp.ok?
+      warn "Unable to attach #{args[0]}: #{resp.message}"
       exit(false)
     end
 
@@ -122,5 +122,9 @@ class Minerdctl::Cli
     else
       "%02d:%02d:%02d" % [h, m, s]
     end
+  end
+
+  def puts_resp(response)
+    puts response.ok? ? 'OK' : (response.message || 'ERROR')
   end
 end

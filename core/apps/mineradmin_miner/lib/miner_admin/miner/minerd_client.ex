@@ -77,32 +77,32 @@ defmodule MinerAdmin.Miner.MinerdClient do
   end
 
   def handle_call(:status, from, state) do
-    :gen_tcp.send(state.socket, "STATUS\n")
+    send_cmd(state.socket, :status)
     {:noreply, %{state | queue: :queue.in({:status, from}, state.queue)}}
   end
 
   def handle_call({:status, id}, from, state) do
-    :gen_tcp.send(state.socket, "STATUS #{id}\n")
+    send_cmd(state.socket, :status, %{id: id})
     {:noreply, %{state | queue: :queue.in({{:status, id}, from}, state.queue)}}
   end
 
   def handle_call(:list, from, state) do
-    :gen_tcp.send(state.socket, "LIST\n")
+    send_cmd(state.socket, :list)
     {:noreply, %{state | queue: :queue.in({:list, from}, state.queue)}}
   end
 
   def handle_call({:start, id, cmd, args}, from, state) do
-    :gen_tcp.send(state.socket, "START #{id} #{cmd} #{Enum.join(args, " ")}\n")
+    send_cmd(state.socket, :start, %{id: id, cmd: cmd, args: args})
     {:noreply, %{state | queue: :queue.in({:start, from}, state.queue)}}
   end
 
   def handle_call({:stop, id}, from, state) do
-    :gen_tcp.send(state.socket, "STOP #{id}\n")
+    send_cmd(state.socket, :stop, %{id: id})
     {:noreply, %{state | queue: :queue.in({:stop, from}, state.queue)}}
   end
 
   def handle_call({:attach, id, receiver}, from, state) do
-    :gen_tcp.send(state.socket, "ATTACH #{id}\n")
+    send_cmd(state.socket, :attach, %{id: id})
     {:noreply, %{state |
       queue: :queue.in({:attach, from}, state.queue),
       receiver: receiver
@@ -153,45 +153,54 @@ defmodule MinerAdmin.Miner.MinerdClient do
     {:stop, reason, state}
   end
 
-  defp handle_resp({:attach, from}, msg, state) do
-    ret = msg
-      |> to_string()
-      |> String.strip()
-      |> parse_resp()
-
-    GenServer.reply(from, ret)
-
-    if ret == :ok do
-      :inet.setopts(state.socket, packet: :raw)
-      %{state | mode: :attached}
-
-    else
-      %{state | receiver: nil}
-    end
+  defp send_cmd(socket, cmd, opts \\ %{}) do
+    :gen_tcp.send(socket, Poison.encode!(%{
+      cmd: cmd |> Atom.to_string() |> String.upcase(),
+      opts: opts,
+    }) <> "\n")
   end
 
-  defp handle_resp({{:status, _id}, from}, "NOT FOUND" = msg, state) do
-    GenServer.reply(from, {:error, msg})
+  defp handle_resp({:attach, from}, %{status: true}, state) do
+    GenServer.reply(from, :ok)
+
+    :inet.setopts(state.socket, packet: :raw)
+    %{state | mode: :attached}
+  end
+
+  defp handle_resp({:attach, from}, %{status: false} = msg, state) do
+    GenServer.reply(from, {:error, msg.message})
+    %{state | receiver: nil}
+  end
+
+  defp handle_resp({{:status, _id}, from}, %{status: false} = msg, state) do
+    GenServer.reply(from, {:error, msg.message})
     state
   end
 
   defp handle_resp({{:status, _id}, from}, msg, state) do
-    GenServer.reply(from, Poison.decode!(msg, keys: :atoms))
+    GenServer.reply(from, msg.response)
     state
   end
 
   defp handle_resp({:list, from}, msg, state) do
-    GenServer.reply(from, Poison.decode!(msg, keys: :atoms))
+    GenServer.reply(from, msg.response)
     state
   end
 
-  defp handle_resp({_cmd, from}, msg, state) do
-    GenServer.reply(from, parse_resp(msg))
+  defp handle_resp({_cmd, from}, %{status: true}, state) do
+    GenServer.reply(from, :ok)
     state
   end
 
-  defp parse_resp("OK"), do: :ok
-  defp parse_resp(msg), do: {:error, msg}
+  defp handle_resp({_cmd, from}, %{status: false} = msg, state) do
+    GenServer.reply(from, {:error, msg.message})
+    state
+  end
 
-  defp decode(msg), do: msg |> to_string() |> String.strip()
+  defp decode(msg) do
+    msg
+    |> to_string()
+    |> String.strip()
+    |> Poison.decode!(keys: :atoms)
+  end
 end

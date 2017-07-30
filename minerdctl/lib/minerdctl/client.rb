@@ -1,4 +1,5 @@
 require 'socket'
+require 'json'
 
 class Minerdctl::Client
   attr_reader :socket
@@ -12,15 +13,15 @@ class Minerdctl::Client
   end
 
   def status(id = nil)
-    cmd('STATUS', *(id ? [id] : []))
+    cmd('STATUS', id ? {id: id} : {})
   end
 
   def start(id, cmd, args)
-    cmd('START', id, cmd, *args)
+    cmd('START', {id: id, cmd: cmd, args: args})
   end
 
   def stop(id)
-    cmd('STOP', id)
+    cmd('STOP', {id: id})
   end
 
   def list
@@ -28,12 +29,12 @@ class Minerdctl::Client
   end
 
   def attach(id)
-    cmd('ATTACH', id)
+    cmd('ATTACH', {id: id})
   end
 
   protected
-  def cmd(cmd, *args)
-    @socket.puts("#{cmd} #{args.join(' ')}")
-    @socket.readline.strip
+  def cmd(cmd, opts = {})
+    @socket.puts(JSON.dump({cmd: cmd, opts: opts}))
+    Minerdctl::Response.new(JSON.parse(@socket.readline.strip, symbolize_names: true))
   end
 end
