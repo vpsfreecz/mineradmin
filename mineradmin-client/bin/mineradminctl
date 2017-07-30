@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require 'mineradmin/cli'
+
+MinerAdmin::CLI::Cli.run
