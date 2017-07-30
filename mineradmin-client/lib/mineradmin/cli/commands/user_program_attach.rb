@@ -5,7 +5,7 @@ require 'terminal-size'
 
 module MinerAdmin::CLI::Commands
   class UserProgramAttach < HaveAPI::CLI::Command
-    cmd :user_program, :attach
+    cmd :userprogram, :attach
     args 'USER_PROGRAM_ID'
     desc "Attach user program's terminal"
 
