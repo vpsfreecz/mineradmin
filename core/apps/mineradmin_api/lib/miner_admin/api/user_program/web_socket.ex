@@ -33,12 +33,12 @@ defmodule MinerAdmin.Api.UserProgram.WebSocket do
     end
   end
 
-  def websocket_handle({:text, "W" <> data}, req, state) do
+  def websocket_handle({:text, "W " <> data}, req, state) do
     state.accessor.write.(String.strip(data))
     {:ok, req, state}
   end
 
-  def websocket_handle({:text, "S" <> data}, req, state) do
+  def websocket_handle({:text, "S " <> data}, req, state) do
     [w, h] = data |> String.strip |> String.split(" ")
     state.accessor.resize.(w, h)
     {:ok, req, state}
