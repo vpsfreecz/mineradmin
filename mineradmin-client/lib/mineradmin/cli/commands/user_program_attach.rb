@@ -108,7 +108,6 @@ module MinerAdmin::CLI::Commands
           )
 
           ws.onopen do
-            puts "Connected"
             ws.resize
           end
 
@@ -117,8 +116,12 @@ module MinerAdmin::CLI::Commands
             $stdout.flush
           end
 
+          ws.onerror do |error|
+            puts "Error occurred: #{error}"
+            EM.stop
+          end
+
           ws.onclose do |code, reason|
-            puts "Disconnected with status code: #{code} #{reason}"
             EM.stop
           end
 
