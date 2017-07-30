@@ -106,9 +106,7 @@ module MinerAdmin::CLI::Commands
               @api.communicator.url,
               "user-program-io?user_program=#{args[0].strip}"
             ),
-            headers: {
-              'Authorization' => 'basic YWRtaW46MTIzNA==',
-            }
+            headers: auth_headers
           )
 
           ws.onopen do
@@ -139,6 +137,23 @@ module MinerAdmin::CLI::Commands
     end
 
     protected
+    def auth_headers
+      auth = @api.communicator.auth
+
+      case auth
+      when HaveAPI::Client::Authentication::Basic
+        v = Base64.encode64("#{auth.user}:#{auth.password}").strip
+        {'Authorization' => "basic #{v}"}
+
+      when HaveAPI::Client::Authentication::Token
+        # TODO: this will not work if option `via` is set to `:query_param`
+        auth.request_headers
+
+      else
+        {}
+      end
+    end
+
     def tty(&block)
       if @opts[:tty].nil?
         if $stdout.tty?
