@@ -11,6 +11,10 @@ defmodule MinerAdmin.Miner.GpuMapper do
     GenServer.call(__MODULE__, {:uuid_to_index, uuid})
   end
 
+  def uuids_to_indexes(uuids) do
+    GenServer.call(__MODULE__, {:uuids_to_indexes, uuids})
+  end
+
   # Server implementation
   def init([]) do
     GenServer.cast(self(), :startup)
@@ -28,5 +32,9 @@ defmodule MinerAdmin.Miner.GpuMapper do
 
   def handle_call({:uuid_to_index, uuid}, _from, state) do
     {:reply, state[uuid], state}
+  end
+
+  def handle_call({:uuids_to_indexes, uuids}, _from, state) do
+    {:reply, Enum.map(uuids, &state[&1]), state}
   end
 end
