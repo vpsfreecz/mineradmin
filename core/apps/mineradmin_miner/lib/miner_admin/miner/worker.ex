@@ -110,12 +110,18 @@ defmodule MinerAdmin.Miner.Worker do
   end
 
   # Output from MinerdClient
-  def handle_info({:minerd, _from, data}, state) do
+  def handle_info({:minerd, _from, :data, data}, state) do
     for {_ref, sub} <- state.subscribers do
       send(sub, {:user_program, :output, data})
     end
 
     {:noreply, state}
+  end
+
+  def handle_info({:minerd, _from, :exit, status}, state) do
+    Logger.debug "Process exited with status #{status}, restarting in 5s"
+    Process.send_after(self(), :autorestart, 5000)
+    {:noreply, %{state | running: false}}
   end
 
   def handle_info({:write_encoded, data}, state) do
@@ -126,6 +132,21 @@ defmodule MinerAdmin.Miner.Worker do
   def handle_info({:resize, w, h}, state) do
     Miner.MinerdClient.resize(state.minerd, w, h)
     {:noreply, state}
+  end
+
+  def handle_info(:autorestart, %{running: true} = state) do
+    # The process has been already started in the meantime
+    {:noreply, state}
+  end
+
+  def handle_info(:autorestart, %{running: false} = state) do
+    case do_start(state) do
+      {:ok, state} ->
+        {:noreply, state}
+
+      {:error, msg, state} ->
+        {:stop, msg, state}
+    end
   end
 
   def terminate(:normal, state) do

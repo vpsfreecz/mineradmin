@@ -41,7 +41,7 @@ catch :stop do
 
           case cmd[0]
           when 'W'
-            master.write(Base64.decode64(cmd[1]))
+            master.write(Base64.strict_decode64(cmd[1]))
 
           when 'S'
             w, h = cmd[1..2].map { |v| v.to_i }
@@ -73,4 +73,5 @@ end
 
 master.close
 
-Process.wait(pid)
+_, status = Process.wait2(pid)
+exit(status.exitstatus || 0)

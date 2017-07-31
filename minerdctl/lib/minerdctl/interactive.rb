@@ -62,14 +62,37 @@ class Minerdctl::Interactive
   end
 
   class MinerdHandler < EventMachine::Connection
+    def post_init
+      @buffer = ''
+    end
+
     def receive_data(data)
-      $stdout.write(data)
-      $stdout.flush
+      @buffer << data
+
+      loop do
+        i = @buffer.index("\n")
+        return unless i
+
+        line = @buffer[0..i]
+        @buffer = @buffer[i+1..-1]
+
+        cmd, data = line.strip.split(' ')
+
+        case cmd
+        when 'W'
+          $stdout.write(Base64.strict_decode64(data))
+          $stdout.flush
+
+        when 'Q'
+          puts "Process exited with status #{data}"
+          close_connection_after_writing
+        end
+      end
     end
 
     def send_write(data)
       return if data.empty?
-      send_cmd('W', Base64.encode64(data))
+      send_cmd('W', Base64.strict_encode64(data))
     end
 
     def resize(w, h)
@@ -78,6 +101,7 @@ class Minerdctl::Interactive
 
     def send_detach
       send_cmd('Q')
+      close_connection_after_writing
     end
 
     def unbind

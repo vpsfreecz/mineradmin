@@ -71,7 +71,7 @@ module MinerAdmin::CLI::Commands
     class WebSocketHandler < WebSocket::EventMachine::Client
       def send_write(data)
         return if data.empty?
-        send_cmd('W', Base64.encode64(data))
+        send_cmd('W', Base64.strict_encode64(data))
       end
 
       def resize

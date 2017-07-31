@@ -32,6 +32,10 @@ class Minerdctl::Client
     cmd('ATTACH', {id: id})
   end
 
+  def detach(id)
+    @socket.puts('Q')
+  end
+
   protected
   def cmd(cmd, opts = {})
     @socket.puts(JSON.dump({cmd: cmd, opts: opts}))

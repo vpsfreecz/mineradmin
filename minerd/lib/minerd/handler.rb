@@ -29,16 +29,15 @@ class Minerd::Handler
         distribute(@io.readpartial(512))
       end
 
-      Process.wait(@io.pid)
+      pid, status = Process.wait2(@io.pid)
       Minerd::State.unregister(@id)
-      sync { unsubscribe_all(:exit) }
+      sync { unsubscribe_all(:exit, status.exitstatus) }
     end
   end
 
   def stop
     sync do
       @io.puts('Q')
-      unsubscribe_all(:exit)
     end
   end
 
@@ -73,8 +72,8 @@ class Minerd::Handler
     sync { @subscribers.each { |_, block| block.call(:data, data) } }
   end
 
-  def unsubscribe_all(reason)
-    @subscribers.each { |_, block| block.call(:exit, nil) }
+  def unsubscribe_all(reason, status)
+    @subscribers.each { |_, block| block.call(reason, status) }
     @subscribers.clear
   end
 

@@ -1,17 +1,23 @@
+require 'base64'
+require 'thread'
+
 class Minerd::Interactive
   def initialize(socket, id)
+    @mutex = Mutex.new
     @socket = socket
     @id = id
+    @exited = false
   end
 
   def subscribe
     @handler = Minerd::State.handler_subscribe(@id, self) do |event, data|
       case event
       when :data
-        @socket.send(data, 0)
+        @socket.send("W #{Base64.strict_encode64(data)}\n", 0)
 
       when :exit
-        @socket.close
+        @socket.send("Q #{data}\n", 0)
+        sync { @exited = true }
       end
     end
   end
@@ -19,6 +25,8 @@ class Minerd::Interactive
   def start
     loop do
       line = @socket.readline.strip
+
+      return line if sync { @exited }
       next if line.empty?
 
       msg = line.split(' ')
@@ -54,9 +62,16 @@ class Minerd::Interactive
       end
     end
 
-  rescue IOError, Errno::ECONNRESET
+    nil
+
+  rescue => e
+    warn "Exception in interactive mode: #{e.message} (#{e.class})"
 
   ensure
     Minerd::State.handler_unsubscribe(@id, self)
+  end
+
+  def sync
+    @mutex.synchronize { yield }
   end
 end

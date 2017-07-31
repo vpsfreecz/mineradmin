@@ -3,11 +3,18 @@ require 'json'
 class Minerd::Client
   def initialize(socket)
     @socket = socket
+    @next_line = nil
   end
 
   def serve
     loop do
-      line = @socket.readline
+      if @next_line
+        line = @next_line
+        @next_line = nil
+
+      else
+        line = @socket.readline
+      end
 
       begin
         msg = JSON.parse(line.strip, symbolize_names: true)
@@ -21,8 +28,8 @@ class Minerd::Client
       end
     end
 
-  rescue IOError
-    puts "Client disconnected"
+  rescue => e
+    puts "Client disconnected: #{e.message} (#{e.class})"
     @socket.close unless @socket.closed?
   end
 
@@ -93,7 +100,7 @@ class Minerd::Client
 
     if i.subscribe
       reply(true)
-      i.start
+      @next_line = i.start
 
     else
       reply(false, message: 'NOT FOUND')

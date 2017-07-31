@@ -38,4 +38,7 @@ the following line-based commands:
  - `S <width> <height>` to set the program's pty dimensions (cols and rows)
  - `Q` to leave the interactive mode
 
-Minerd sends the raw process's output directly.
+Output data is sent to the client in the same format:
+
+ - `W <data in base64>` output from the program
+ - `Q <exit status>` when the program has exited (crashed or stopped)

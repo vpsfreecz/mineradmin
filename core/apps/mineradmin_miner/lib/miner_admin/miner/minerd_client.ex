@@ -15,6 +15,7 @@ defmodule MinerAdmin.Miner.MinerdClient do
   """
 
   use GenServer
+  require Logger
 
   # Client API
   def start_link do
@@ -111,7 +112,6 @@ defmodule MinerAdmin.Miner.MinerdClient do
 
   def handle_call(:detach, _from, %{mode: :attached} = state) do
     :gen_tcp.send(state.socket, "Q\n")
-    :inet.setopts(state.socket, packet: :line)
     {:reply, :ok, %{state | mode: :cmd, receiver: nil}}
   end
 
@@ -141,8 +141,7 @@ defmodule MinerAdmin.Miner.MinerdClient do
   end
 
   def handle_info({:tcp, _socket, msg}, %{mode: :attached} = state) do
-    send(state.receiver, {:minerd, self(), msg})
-    {:noreply, state}
+    handle_stream(to_string(msg), state)
   end
 
   def handle_info({:tcp_closed, _socket}, state) do
@@ -162,8 +161,6 @@ defmodule MinerAdmin.Miner.MinerdClient do
 
   defp handle_resp({:attach, from}, %{status: true}, state) do
     GenServer.reply(from, :ok)
-
-    :inet.setopts(state.socket, packet: :raw)
     %{state | mode: :attached}
   end
 
@@ -187,7 +184,7 @@ defmodule MinerAdmin.Miner.MinerdClient do
     state
   end
 
-  defp handle_resp({_cmd, from}, %{status: true}, state) do
+  defp handle_resp({cmd, from}, %{status: true}, state) do
     GenServer.reply(from, :ok)
     state
   end
@@ -195,6 +192,22 @@ defmodule MinerAdmin.Miner.MinerdClient do
   defp handle_resp({_cmd, from}, %{status: false} = msg, state) do
     GenServer.reply(from, {:error, msg.message})
     state
+  end
+
+  defp handle_stream("W " <> data, state) do
+    send(
+      state.receiver,
+      {:minerd, self(), :data, Base.decode64!(data, ignore: :whitespace)}
+    )
+    {:noreply, state}
+  end
+
+  defp handle_stream("Q " <> status, state) do
+    send(
+      state.receiver,
+      {:minerd, self(), :exit, status |> String.strip() |> String.to_integer()}
+    )
+    {:noreply, %{state | mode: :cmd}}
   end
 
   defp decode(msg) do
