@@ -137,6 +137,8 @@ defmodule MinerAdmin.Miner.Worker do
     :ok
   end
 
+  def terminate(_other, _state), do: :ok
+
   defp startup(state, true) do
     case do_start(state) do
       {:ok, state} ->
