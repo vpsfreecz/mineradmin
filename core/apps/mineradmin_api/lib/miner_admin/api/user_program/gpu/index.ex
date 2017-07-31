@@ -22,7 +22,7 @@ defmodule MinerAdmin.Api.UserProgram.Gpu.Index do
   end
 
   def count(req) do
-    Base.Query.UserProgram.gpus_count(req.params[:userprogram_id], req.user)
+    Base.Query.UserProgram.gpus_count(req.params[:userprogram_id])
   end
 
   defp find(id, user) do

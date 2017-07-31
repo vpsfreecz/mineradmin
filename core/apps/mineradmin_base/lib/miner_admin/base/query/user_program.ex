@@ -34,7 +34,7 @@ defmodule MinerAdmin.Base.Query.UserProgram do
     @repo.preload(user_prog, [:gpus]).gpus
   end
 
-  def gpus_count(id, user) do
+  def gpus_count(id) do
     from(
       up in @schema,
       join: g in assoc(up, :gpus),
@@ -81,7 +81,7 @@ defmodule MinerAdmin.Base.Query.UserProgram do
       up in @schema,
       join: n in assoc(up, :node),
       where: n.name == ^name and n.domain == ^domain,
-      preload: [:program, :gpus]
+      preload: [:program, :gpus, :node]
     ) |> @repo.all
   end
 

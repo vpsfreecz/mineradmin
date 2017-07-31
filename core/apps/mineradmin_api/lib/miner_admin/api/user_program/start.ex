@@ -14,8 +14,13 @@ defmodule MinerAdmin.Api.UserProgram.Start do
         {:error, "Object not found"}
 
       user_prog ->
-        Base.UserProgram.start(user_prog)
-        :ok
+        case Base.UserProgram.start(user_prog) do
+          {:error, msg} ->
+            {:error, msg}
+
+          _ ->
+            :ok
+        end
     end
   end
 

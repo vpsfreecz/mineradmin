@@ -1,6 +1,7 @@
 defmodule MinerAdmin.Base.Schema.UserProgram do
   use Ecto.Schema
   import Ecto.Changeset
+  alias MinerAdmin.Base
   alias MinerAdmin.Base.Schema
 
   schema "user_programs" do
@@ -17,14 +18,13 @@ defmodule MinerAdmin.Base.Schema.UserProgram do
   end
 
   def create_changeset(user_prog, params) do
-    fields = ~w(user_id program_id node_id label)a
-
     user_prog
-    |> cast(params, fields)
-    |> validate_required(fields)
-    |> foreign_key_constraint(:user_id)
-    |> foreign_key_constraint(:program_id)
-    |> foreign_key_constraint(:node_id)
+    |> cast(params, ~w(user_id program_id node_id label cmdline)a)
+    |> validate_required(~w(label)a)
+    |> assoc_constraint(:user)
+    |> assoc_constraint(:program)
+    |> assoc_constraint(:node)
+    |> Base.Program.changeset(:create, user_prog)
   end
 
   def active_changeset(user_prog, params \\ %{}) do

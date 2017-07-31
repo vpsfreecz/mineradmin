@@ -4,10 +4,9 @@ defmodule MinerAdmin.Api.UserProgram.Create do
   alias MinerAdmin.Base
 
   input do
-    params = ~w(user program node label)a
-    use Api.UserProgram.Params, only: params
+    use Api.UserProgram.Params, only: ~w(user program node label cmdline)a
 
-    for p <- params do
+    for p <- ~w(user program node label)a do
       patch p, validate: [required: true]
     end
   end
