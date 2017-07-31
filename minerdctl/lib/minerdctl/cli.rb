@@ -1,7 +1,8 @@
 require 'json'
+require 'pry'
 
 class Minerdctl::Cli
-  COMMANDS = %w(status start stop list attach)
+  COMMANDS = %w(status start stop list attach pry)
 
   def self.run
     if ARGV.count < 1
@@ -92,6 +93,10 @@ class Minerdctl::Cli
 
     i = Minerdctl::Interactive.new(@client.socket)
     i.start
+  end
+
+  def run_pry(args)
+    binding.pry
   end
 
   protected
