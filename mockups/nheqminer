@@ -1,0 +1,99 @@
+#!/usr/bin/env ruby
+require 'securerandom'
+
+BANNER = <<END
+
+        ==================== www.nicehash.com ====================
+                Equihash CPU&GPU Miner for NiceHash v0.4b
+        Thanks to Zcash developers for providing base of the code.
+               Special thanks to tromp, xenoncat, mbevand
+                     and eXtremal-ik7 for providing
+              optimized CPU, CUDA and AMD equihash solvers.
+        ==================== www.nicehash.com ====================
+
+END
+
+HELP = <<END
+Parameters:
+        -h              Print this help and quit
+        -l [location]   Stratum server:port
+        -u [username]   Username (bitcoinaddress)
+
+NVIDIA CUDA settings
+        -cd [devices]   Enable CUDA mining on spec. devices
+END
+
+def parse_opts(argv)
+  opts = {}
+
+  until argv.empty?
+    case argv.shift
+    when '-l'
+      opts[:location] = argv.shift
+
+    when '-u'
+      opts[:username] = argv.shift
+
+    when '-cd'
+      opts[:cuda_devices] = argv.shift
+
+    when '-h'
+      puts HELP
+      exit(true)
+    end
+  end
+
+  opts
+end
+
+def print(msg)
+  if msg.start_with?('stratum')
+    token = '0x00007f866f5c3700'
+
+  elsif msg.start_with?('miner#')
+    token = '0x00007f8671181741'
+
+  else
+    token = '0x00007f8671181740'
+  end
+
+  puts "[#{Time.now.strftime('%H:%M:%S')}][#{token}] #{msg}"
+end
+
+def run
+  opts = parse_opts(ARGV.clone)
+
+  puts "Setting log level to 2"
+  print "Using SSE2: YES"
+  print "Using AVX: YES"
+  print "Using AVX2: NO"
+  print "stratum | Starting miner"
+  print "stratum | Connecting to stratum server #{opts[:location]}"
+  print "miner#0 | Starting thread #0 (CPU-XENONCAT-AVX)"
+  print "stratum | Connected!"
+  print "stratum | Subscribed to stratum server"
+  print "miner | Extranonce is #{SecureRandom.hex(5)}"
+  print "stratum | Authorized worker #{opts[:username]}"
+  print "stratum | \033[35mTarget set to #{SecureRandom.hex(32)}\033[0m"
+  print "stratum | \033[36mReceived new job ##{SecureRandom.hex(10)}\033[0m"
+
+  counter = 0
+
+  loop do
+    # Receive new job every second with probability 2.5 %
+    if Random.rand(0..1000) <= (0.025 * 1000)
+      print "stratum | \033[36mReceived new job ##{SecureRandom.hex(10)}\033[0m"
+    end
+
+    if counter == 10
+      print "\033[33mSpeed [300 sec]: 2.0854 I/s, 3.87289 Sols/s\033[0m"
+      counter = 0
+    end
+
+    counter += 1
+    sleep(1)
+  end
+end
+
+puts BANNER
+run
