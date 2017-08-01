@@ -81,8 +81,8 @@ defmodule MinerAdmin.Miner.Worker do
   def handle_call({:attach, receiver}, _from, state) do
     ref = Process.monitor(receiver)
     myself = self()
-    write = fn data -> send(myself, {:write_encoded, data}) end
-    resize = fn w, h -> send(myself, {:resize, w, h}) end
+    write = fn data -> send(myself, {:stream, :write_encoded, data}) end
+    resize = fn w, h -> send(myself, {:stream, :resize, {w, h}}) end
 
     Logger.debug "Attaching socket subscriber to miner worker"
 
@@ -124,12 +124,16 @@ defmodule MinerAdmin.Miner.Worker do
     {:noreply, %{state | running: false}}
   end
 
-  def handle_info({:write_encoded, data}, state) do
+  def handle_info({:stream, _cmd, _data}, %{running: false} = state) do
+    {:noreply, state}
+  end
+
+  def handle_info({:stream, :write_encoded, data}, state) do
     Miner.MinerdClient.write_encoded(state.minerd, data)
     {:noreply, state}
   end
 
-  def handle_info({:resize, w, h}, state) do
+  def handle_info({:stream, :resize, {w, h}}, state) do
     Miner.MinerdClient.resize(state.minerd, w, h)
     {:noreply, state}
   end
