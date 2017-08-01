@@ -25,6 +25,7 @@ defmodule MinerAdmin.Api.UserProgram do
     Api.UserProgram.Delete,
     Api.UserProgram.Start,
     Api.UserProgram.Stop,
+    Api.UserProgram.Restart,
   ]
 
   resources [

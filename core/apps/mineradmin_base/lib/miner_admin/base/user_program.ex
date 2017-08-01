@@ -35,6 +35,19 @@ defmodule MinerAdmin.Base.UserProgram do
     Miner.Dispatcher.stop(user_prog)
   end
 
+  def restart(user_prog) do
+    with true <- Base.Program.can_start?(user_prog),
+         {:ok, user_prog} <- Base.Query.UserProgram.activate(user_prog, true),
+         :ok <- ensure_stopped(user_prog),
+         :ok <- Miner.Dispatcher.start(user_prog) do
+      :ok
+
+    else
+      {:error, msg} ->
+        {:error, msg}
+    end
+  end
+
   def node_name(user_prog) do
     :"#{user_prog.node.name}@#{user_prog.node.domain}"
   end
@@ -52,5 +65,13 @@ defmodule MinerAdmin.Base.UserProgram do
 
   def has_gpus?(user_prog) do
     Base.Query.UserProgram.gpus_count(user_prog.id) > 0
+  end
+
+  def ensure_stopped(user_prog) do
+    case Miner.Dispatcher.stop(user_prog) do
+      :ok -> :ok
+      :not_started -> :ok
+      other -> other
+    end
   end
 end
