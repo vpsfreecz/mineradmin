@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'pty'
 require 'base64'
+require 'timeout'
 
 def detach(pid)
   Process.kill('TERM', pid)
@@ -72,6 +73,16 @@ catch :stop do
 end
 
 master.close
+status = nil
 
-_, status = Process.wait2(pid)
+begin
+  Timeout.timeout(3) do
+    _, status = Process.wait2(pid)
+  end
+
+rescue Timeout::Error
+  Process.kill('KILL', pid)
+  _, status = Process.wait2(pid)
+end
+
 exit(status.exitstatus || 0)
