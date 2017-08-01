@@ -3,7 +3,7 @@ defmodule MinerAdmin.Api.UserProgram.Delete do
   alias MinerAdmin.Api
   alias MinerAdmin.Base
 
-  def authorize(_req, user), do: Api.Authorize.admin(user)
+  def authorize(_req, _user), do: :allow
 
   def exec(req) do
     case find(req.params[:userprogram_id], req.user) do

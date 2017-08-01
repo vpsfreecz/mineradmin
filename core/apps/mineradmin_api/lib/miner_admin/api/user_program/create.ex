@@ -15,10 +15,24 @@ defmodule MinerAdmin.Api.UserProgram.Create do
     use Api.UserProgram.Params
   end
 
-  def authorize(_req, user), do: Api.Authorize.admin(user)
+  def authorize(%HaveAPI.Request{}, user) do
+    if Base.User.admin?(user) do
+      :allow
+
+    else
+      {:allow, blacklist: [:user]}
+    end
+  end
+
+  def authorize(_res, _user), do: :allow
 
   def exec(req) do
-    case Base.UserProgram.create(Api.associatify(req.input, [:user, :program, :node])) do
+    ret = req
+      |> params(Base.User.admin?(req.user))
+      |> Api.associatify([:user, :program, :node])
+      |> Base.UserProgram.create()
+
+    case ret do
       {:ok, user_prog} ->
         Api.resourcify(user_prog, [:user, :program, :node])
 
@@ -26,4 +40,7 @@ defmodule MinerAdmin.Api.UserProgram.Create do
         Api.format_errors(changeset)
     end
   end
+
+  defp params(req, true), do: req.input
+  defp params(req, false), do: Map.put(req.input, :user, req.user.id)
 end

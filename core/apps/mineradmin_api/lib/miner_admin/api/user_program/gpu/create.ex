@@ -13,7 +13,7 @@ defmodule MinerAdmin.Api.UserProgram.Gpu.Create do
     use Api.UserProgram.Gpu.Params
   end
 
-  def authorize(_req, user), do: Api.Authorize.admin(user)
+  def authorize(_req, _user), do: :allow
 
   def exec(req) do
     case find_prog(req.params[:userprogram_id], req.user) do
@@ -42,7 +42,6 @@ defmodule MinerAdmin.Api.UserProgram.Gpu.Create do
   defp add_gpu(user_prog, gpu) do
     case Base.Query.UserProgram.add_gpu(user_prog, gpu) do
       {:ok, user_prog} ->
-        IO.inspect user_prog
         %{id: gpu.id, gpu: [gpu.id]}
 
       {:error, changeset} ->
