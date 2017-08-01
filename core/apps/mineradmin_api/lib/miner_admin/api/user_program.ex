@@ -21,7 +21,7 @@ defmodule MinerAdmin.Api.UserProgram do
     Api.UserProgram.Index,
     Api.UserProgram.Show,
     Api.UserProgram.Create,
-    #Api.UserProgram.Update,
+    Api.UserProgram.Update,
     Api.UserProgram.Delete,
     Api.UserProgram.Start,
     Api.UserProgram.Stop,

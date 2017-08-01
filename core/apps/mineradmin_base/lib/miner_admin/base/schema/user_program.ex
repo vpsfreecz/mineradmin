@@ -27,6 +27,12 @@ defmodule MinerAdmin.Base.Schema.UserProgram do
     |> Base.Program.changeset(:create, user_prog)
   end
 
+  def update_changeset(user_prog, params) do
+    user_prog
+    |> cast(params, ~w(label cmdline)a)
+    |> Base.Program.changeset(:update, user_prog)
+  end
+
   def active_changeset(user_prog, params \\ %{}) do
     user_prog
     |> cast(params, [:active])

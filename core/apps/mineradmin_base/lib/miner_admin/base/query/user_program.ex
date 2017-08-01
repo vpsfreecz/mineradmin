@@ -28,6 +28,12 @@ defmodule MinerAdmin.Base.Query.UserProgram do
     end
   end
 
+  def update(user_prog, params) do
+    user_prog
+    |> @schema.update_changeset(params)
+    |> @repo.update()
+  end
+
   def delete(user_prog), do: @repo.delete(user_prog)
 
   def gpus(user_prog) do
