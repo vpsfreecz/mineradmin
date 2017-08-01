@@ -39,6 +39,8 @@ class Minerd::Handler
     sync do
       @io.puts('Q')
     end
+
+    @thread.join
   end
 
   def write(data)
