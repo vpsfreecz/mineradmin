@@ -41,17 +41,17 @@ defmodule MinerAdmin.Miner.Dispatcher do
     :ok
   end
 
-  def start(user_prog) do
+  def start(user_prog, session) do
     GenServer.call(
       {__MODULE__, Base.UserProgram.node_name(user_prog)},
-      {:start, user_prog}
+      {:start, user_prog, session}
     )
   end
 
-  def stop(user_prog) do
+  def stop(user_prog, session) do
     GenServer.call(
       {__MODULE__, Base.UserProgram.node_name(user_prog)},
-      {:stop, user_prog}
+      {:stop, user_prog, session}
     )
   end
 
@@ -75,12 +75,12 @@ defmodule MinerAdmin.Miner.Dispatcher do
     {:reply, Miner.Worker.remove(user_prog), nil}
   end
 
-  def handle_call({:start, user_prog}, _from, nil) do
-    {:reply, Miner.Worker.start(user_prog), nil}
+  def handle_call({:start, user_prog, session}, _from, nil) do
+    {:reply, Miner.Worker.start(user_prog, session), nil}
   end
 
-  def handle_call({:stop, user_prog}, _from, nil) do
-    {:reply, Miner.Worker.stop(user_prog), nil}
+  def handle_call({:stop, user_prog, session}, _from, nil) do
+    {:reply, Miner.Worker.stop(user_prog, session), nil}
   end
 
   def handle_call({:attach, user_prog, receiver}, _from, nil) do

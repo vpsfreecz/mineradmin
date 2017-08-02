@@ -30,5 +30,6 @@ defmodule MinerAdmin.Api.UserProgram do
 
   resources [
     Api.UserProgram.Gpu,
+    Api.UserProgram.Log,
   ]
 end

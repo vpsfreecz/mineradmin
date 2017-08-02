@@ -25,7 +25,13 @@ defmodule MinerAdmin.Api.UserProgram.WebSocket do
          {:ok, worker, accessor} <- subscribe(user_prog) do
 
       Process.monitor(worker)
-      {:ok, req, %{conn: conn, accessor: accessor}, @timeout}
+      Base.UserProgramLog.log(user_prog, session, :attach, nil)
+      {
+        :ok,
+        req,
+        %{conn: conn, user_prog: user_prog, session: session, accessor: accessor},
+        @timeout
+      }
 
     else
       _ ->
@@ -57,7 +63,8 @@ defmodule MinerAdmin.Api.UserProgram.WebSocket do
     {:ok, req, state}
   end
 
-  def websocket_terminate(_reason, _req, _state) do
+  def websocket_terminate(_reason, _req, state) do
+    Base.UserProgramLog.log(state.user_prog, state.session, :detach, nil)
     :ok
   end
 

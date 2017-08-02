@@ -19,27 +19,27 @@ defmodule MinerAdmin.Base.UserProgram do
     Base.Query.UserProgram.delete(user_prog)
   end
 
-  def start(user_prog) do
+  def start(user_prog, session) do
     case Base.Program.can_start?(user_prog) do
       true ->
         {:ok, user_prog} = Base.Query.UserProgram.activate(user_prog, true)
-        Miner.Dispatcher.start(user_prog)
+        Miner.Dispatcher.start(user_prog, session)
 
       {:error, msg} ->
         {:error, msg}
     end
   end
 
-  def stop(user_prog) do
+  def stop(user_prog, session) do
     {:ok, user_prog} = Base.Query.UserProgram.activate(user_prog, false)
-    Miner.Dispatcher.stop(user_prog)
+    Miner.Dispatcher.stop(user_prog, session)
   end
 
-  def restart(user_prog) do
+  def restart(user_prog, session) do
     with true <- Base.Program.can_start?(user_prog),
          {:ok, user_prog} <- Base.Query.UserProgram.activate(user_prog, true),
-         :ok <- ensure_stopped(user_prog),
-         :ok <- Miner.Dispatcher.start(user_prog) do
+         :ok <- ensure_stopped(user_prog, session),
+         :ok <- Miner.Dispatcher.start(user_prog, session) do
       :ok
 
     else
@@ -67,8 +67,8 @@ defmodule MinerAdmin.Base.UserProgram do
     Base.Query.UserProgram.gpus_count(user_prog.id) > 0
   end
 
-  def ensure_stopped(user_prog) do
-    case Miner.Dispatcher.stop(user_prog) do
+  def ensure_stopped(user_prog, session) do
+    case Miner.Dispatcher.stop(user_prog, session) do
       :ok -> :ok
       :not_started -> :ok
       other -> other

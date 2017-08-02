@@ -14,7 +14,7 @@ defmodule MinerAdmin.Api.UserProgram.Restart do
         {:error, "Object not found"}
 
       user_prog ->
-        case Base.UserProgram.restart(user_prog) do
+        case Base.UserProgram.restart(user_prog, req.user) do
           {:error, msg} ->
             {:error, msg}
 

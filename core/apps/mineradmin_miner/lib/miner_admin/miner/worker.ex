@@ -19,12 +19,12 @@ defmodule MinerAdmin.Miner.Worker do
     GenServer.stop(via_tuple(prog), :normal)
   end
 
-  def start(prog) do
-    GenServer.call(via_tuple(prog), {:start, prog})
+  def start(prog, session) do
+    GenServer.call(via_tuple(prog), {:start, prog, session})
   end
 
-  def stop(prog) do
-    GenServer.call(via_tuple(prog), {:stop, prog})
+  def stop(prog, session) do
+    GenServer.call(via_tuple(prog), {:stop, prog, session})
   end
 
   def attach(prog, receiver) do
@@ -52,12 +52,12 @@ defmodule MinerAdmin.Miner.Worker do
     startup(%{state | minerd: pid}, state.program.active)
   end
 
-  def handle_call({:start, prog}, _from, state) do
+  def handle_call({:start, prog, session}, _from, state) do
     if state.running do
       {:reply, :already_running, state}
 
     else
-      case do_start(%{state | program: prog}) do
+      case do_start(%{state | program: prog}, session) do
         {:ok, state} ->
           {:reply, :ok, state}
 
@@ -67,10 +67,11 @@ defmodule MinerAdmin.Miner.Worker do
     end
   end
 
-  def handle_call({:stop, prog}, _from, state) do
+  def handle_call({:stop, prog, session}, _from, state) do
     if state.running do
       :ok = Miner.MinerdClient.detach(state.minerd)
       :ok = Miner.MinerdClient.stop(state.minerd, state.id)
+      Base.UserProgramLog.log(prog, session, :stop, nil)
       {:reply, :ok, %{state | program: prog, running: false}}
 
     else
@@ -120,6 +121,7 @@ defmodule MinerAdmin.Miner.Worker do
 
   def handle_info({:minerd, _from, :exit, status}, state) do
     Logger.debug "Process exited with status #{status}, restarting in 5s"
+    Base.UserProgramLog.log(state.program, nil, :exit, %{status: status})
     Process.send_after(self(), :autorestart, 5000)
     {:noreply, %{state | running: false}}
   end
@@ -178,11 +180,15 @@ defmodule MinerAdmin.Miner.Worker do
     {:noreply, %{state | running: false}}
   end
 
-  defp do_start(state) do
+  defp do_start(state, session \\ nil) do
     {id, cmd, args} = Base.Program.command(state.program)
 
     case Miner.MinerdClient.start(state.minerd, id, cmd, args) do
       :ok ->
+        Base.UserProgramLog.log(state.program, session, :start, %{
+          command: cmd,
+          arguments: args,
+        })
         {:ok, do_attach(state, id)}
 
       {:error, "ALREADY STARTED"} ->
