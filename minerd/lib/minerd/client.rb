@@ -66,7 +66,7 @@ class Minerd::Client
     reply(true)
 
   rescue Minerd::Handler::AlreadyStarted
-    reply(true, message: 'ALREADY STARTED')
+    reply(false, message: 'ALREADY STARTED')
   end
 
   def cmd_stop(opts)
