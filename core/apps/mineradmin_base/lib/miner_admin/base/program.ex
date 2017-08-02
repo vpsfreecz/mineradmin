@@ -27,7 +27,7 @@ defmodule MinerAdmin.Base.Program do
   """
   @callback read_only?(user_program) :: boolean
 
-  def changeset(changeset, :create, user_program) do
+  def changeset(changeset, :create, _user_program) do
     {:ok, prog_id} = Ecto.Changeset.fetch_change(changeset, :program_id)
 
     case Base.Query.Program.get(prog_id) do
