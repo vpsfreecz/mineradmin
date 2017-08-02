@@ -13,6 +13,12 @@ module MinerAdmin::CLI::Commands
     # 6) Start/attach
     def exec(args)
       @dialog = MRDialog.new
+
+      unless @dialog.which("dialog")
+        warn "dialog executable not found in $PATH"
+        exit(false)
+      end
+
       @dialog.logger = Logger.new(ENV["HOME"] + "/dialog_miner.log")
       @dialog.clear = true
 
