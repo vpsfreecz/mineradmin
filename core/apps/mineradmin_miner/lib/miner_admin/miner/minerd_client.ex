@@ -184,8 +184,14 @@ defmodule MinerAdmin.Miner.MinerdClient do
     state
   end
 
-  defp handle_resp({cmd, from}, %{status: true}, state) do
-    GenServer.reply(from, :ok)
+  defp handle_resp({cmd, from}, %{status: true} = msg, state) do
+    if Map.has_key?(msg, :message) do
+      GenServer.reply(from, {:ok, msg.message})
+
+    else
+      GenServer.reply(from, :ok)
+    end
+
     state
   end
 

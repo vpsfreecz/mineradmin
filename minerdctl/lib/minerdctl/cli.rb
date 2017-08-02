@@ -130,6 +130,11 @@ class Minerdctl::Cli
   end
 
   def puts_resp(response)
-    puts response.ok? ? 'OK' : (response.message || 'ERROR')
+    if response.ok?
+      puts response.message || 'OK'
+
+    else
+      puts response.message || 'ERROR'
+    end
   end
 end
