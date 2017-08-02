@@ -37,4 +37,27 @@ defmodule MinerAdmin.Base.Schema.UserProgram do
     user_prog
     |> cast(params, [:active])
   end
+
+  def gpus_changeset(changeset) do
+    validate_change(changeset, :gpus, fn :gpus, gpus ->
+      errors = Enum.reduce(
+        gpus,
+        [],
+        fn gpu, acc ->
+          if gpu.data.node_id != changeset.data.node_id do
+            ["GPU #{gpu.data.id} is not on node #{changeset.data.node_id}" | acc]
+
+          else
+            acc
+          end
+        end
+      )
+
+      if Enum.empty?(errors) do
+        []
+      else
+        [gpus: Enum.join(errors, ", ")]
+      end
+    end)
+  end
 end

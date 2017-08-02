@@ -8,7 +8,7 @@ defmodule MinerAdmin.Base.Query.Node do
   def get(id), do: @repo.get(@schema, id)
 
   def create(params) do
-    changeset = @schema.create_changeset(%Base.Schema.Node{}, params)
+    changeset = @schema.create_changeset(%@schema{}, params)
     @repo.insert(changeset)
   end
 

@@ -63,6 +63,7 @@ defmodule MinerAdmin.Base.Query.UserProgram do
     |> @repo.preload([:gpus])
     |> Ecto.Changeset.change()
     |> Ecto.Changeset.put_assoc(:gpus, [gpu])
+    |> @schema.gpus_changeset()
     |> @repo.update()
   end
 
