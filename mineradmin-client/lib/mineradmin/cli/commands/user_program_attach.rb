@@ -69,7 +69,10 @@ module MinerAdmin::CLI::Commands
     end
 
     class WebSocketHandler < WebSocket::EventMachine::Client
+      attr_accessor :read_only
+
       def send_write(data)
+        return if read_only
         return if data.empty?
         send_cmd('W', Base64.strict_encode64(data))
       end
@@ -91,6 +94,10 @@ module MinerAdmin::CLI::Commands
     end
 
     def options(opts)
+      opts.on('-r', '--read-only', 'Do not send any input to the attached program') do
+        @opts[:ro] = true
+      end
+
       opts.on('--[no-]tty', 'Toggle TTY control') do |tty|
         @opts[:tty] = tty
       end
@@ -111,6 +118,8 @@ module MinerAdmin::CLI::Commands
             ),
             headers: auth_headers
           )
+
+          ws.read_only = @opts[:ro]
 
           ws.onopen do
             ws.resize
