@@ -29,4 +29,6 @@ defmodule MinerAdmin.Base.Program.Nheqminer do
 
     {"nheqminer", ["-cd", gpus] ++ args}
   end
+
+  def read_only?(_user_prog), do: true
 end

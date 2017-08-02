@@ -40,7 +40,10 @@ defmodule MinerAdmin.Api.UserProgram.WebSocket do
   end
 
   def websocket_handle({:text, "W " <> data}, req, state) do
-    state.accessor.write.(String.strip(data))
+    unless Base.Program.read_only?(state.user_prog) do
+      state.accessor.write.(String.strip(data))
+    end
+
     {:ok, req, state}
   end
 

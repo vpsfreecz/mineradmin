@@ -36,4 +36,6 @@ defmodule MinerAdmin.Base.Program.Ethminer do
 
     {"ethminer", args ++ ["-U", "--cuda-devices"] ++ gpus}
   end
+
+  def read_only?(_user_prog), do: true
 end

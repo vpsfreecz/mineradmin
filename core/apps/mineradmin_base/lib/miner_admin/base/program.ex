@@ -21,6 +21,12 @@ defmodule MinerAdmin.Base.Program do
   """
   @callback command(user_program) :: {String.t, [String.t]}
 
+  @doc """
+  Return `true` if the program does not (or should not) accept input on stdin.
+  This function is called both from the API and miner applications.
+  """
+  @callback read_only?(user_program) :: boolean
+
   def changeset(changeset, :create, user_program) do
     {:ok, prog_id} = Ecto.Changeset.fetch_change(changeset, :program_id)
 
@@ -44,6 +50,10 @@ defmodule MinerAdmin.Base.Program do
 
   def can_start?(user_program) do
     module(user_program).can_start?(user_program)
+  end
+
+  def read_only?(user_program) do
+    module(user_program).read_only?(user_program)
   end
 
   def module(user_program) do

@@ -8,4 +8,6 @@ defmodule MinerAdmin.Base.Program.Dummy do
   def command(_user_prog) do
     {"dummy", []}
   end
+
+  def read_only?(_user_prog), do: false
 end

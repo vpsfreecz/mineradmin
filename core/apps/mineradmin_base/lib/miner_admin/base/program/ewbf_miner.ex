@@ -29,4 +29,6 @@ defmodule MinerAdmin.Base.Program.EwbfMiner do
 
     {"ewbf-miner", args ++ ["--cuda_devices"] ++ gpus}
   end
+
+  def read_only?(_user_prog), do: true
 end

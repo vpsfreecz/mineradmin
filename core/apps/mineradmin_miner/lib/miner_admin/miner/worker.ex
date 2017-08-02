@@ -131,7 +131,10 @@ defmodule MinerAdmin.Miner.Worker do
   end
 
   def handle_info({:stream, :write_encoded, data}, state) do
-    Miner.MinerdClient.write_encoded(state.minerd, data)
+    unless Base.Program.read_only?(state.program) do
+      Miner.MinerdClient.write_encoded(state.minerd, data)
+    end
+
     {:noreply, state}
   end
 
