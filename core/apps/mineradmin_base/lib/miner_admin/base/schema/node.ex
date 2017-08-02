@@ -1,6 +1,7 @@
 defmodule MinerAdmin.Base.Schema.Node do
   use Ecto.Schema
   import Ecto.Changeset
+  alias MinerAdmin.Base.Schema
 
   schema "nodes" do
     field :name, :string
