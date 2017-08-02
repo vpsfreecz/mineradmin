@@ -24,4 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'haveapi-client', '~> 0.9.0'
   spec.add_runtime_dependency 'eventmachine'
   spec.add_runtime_dependency 'websocket-eventmachine-client'
+  spec.add_runtime_dependency 'mrdialog'
 end

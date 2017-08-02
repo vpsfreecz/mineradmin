@@ -85,9 +85,12 @@ module MinerAdmin::CLI::Commands
       end
     end
 
-    def options(opts)
+    def initialize(*args)
+      super
       @opts = {}
+    end
 
+    def options(opts)
       opts.on('--[no-]tty', 'Toggle TTY control') do |tty|
         @opts[:tty] = tty
       end

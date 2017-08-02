@@ -15,3 +15,4 @@ module MinerAdmin
 end
 
 require 'mineradmin/cli/commands/user_program_attach'
+require 'mineradmin/cli/commands/wizard_create'
