@@ -5,6 +5,14 @@ module MinerAdmin::CLI::Commands
     cmd :wizard, :create
     desc "Wizard for creating new user programs"
 
+    def options(opts)
+      @opts = {}
+
+      opts.on('--log FILE', 'Log dialog commands into FILE') do |v|
+        @opts[:logger] = Logger.new(v)
+      end
+    end
+
     # 1) Select miner type
     # 2) Configure label
     # 3) Select node
@@ -19,7 +27,7 @@ module MinerAdmin::CLI::Commands
         exit(false)
       end
 
-      @dialog.logger = Logger.new(ENV["HOME"] + "/dialog_miner.log")
+      @dialog.logger = @opts[:logger]
       @dialog.clear = true
 
       @gpus = @api.gpu.index
