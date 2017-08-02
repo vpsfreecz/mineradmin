@@ -7,11 +7,11 @@ defmodule MinerAdmin.Api.Gpu.Show do
     use Api.Gpu.Params
   end
 
-  def authorize(_req, _user), do: :allow
+  def authorize(_req, _session), do: :allow
 
   def item(req) do
     req.params[:gpu_id]
-    |> Base.Query.Gpu.get(req.user)
+    |> Base.Query.Gpu.get(req.user.user)
     |> Api.resourcify([:user, :node])
   end
 end

@@ -11,7 +11,7 @@ defmodule MinerAdmin.Api.Program.Update do
     use Api.Program.Params
   end
 
-  def authorize(_req, user), do: Api.Authorize.admin(user)
+  def authorize(_req, session), do: Api.Authorize.admin(session)
 
   def exec(req) do
     case find(req.params[:program_id]) do

@@ -7,7 +7,7 @@ defmodule MinerAdmin.Api.Program.Index do
     use Api.Program.Params
   end
 
-  def authorize(_req, _user), do: :allow
+  def authorize(_req, _session), do: :allow
 
   def items(_req) do
     Base.Query.Program.all

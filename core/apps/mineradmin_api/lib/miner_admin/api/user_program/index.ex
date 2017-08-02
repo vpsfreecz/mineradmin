@@ -7,11 +7,13 @@ defmodule MinerAdmin.Api.UserProgram.Index do
     use Api.UserProgram.Params
   end
 
-  def authorize(_req, _user), do: :allow
+  def authorize(_req, _session), do: :allow
 
   def items(req) do
-    Api.resourcify(Base.Query.UserProgram.all(req.user), [:user, :program, :node])
+    req.user.user
+    |> Base.Query.UserProgram.all()
+    |> Api.resourcify([:user, :program, :node])
   end
 
-  def count(req), do: Base.Query.UserProgram.count(req.user)
+  def count(req), do: Base.Query.UserProgram.count(req.user.user)
 end

@@ -21,5 +21,6 @@ defmodule MinerAdmin.Base.User do
     end
   end
 
-  def admin?(user), do: user.role == 0
+  def admin?(%Base.Schema.UserSession{} = session), do: admin?(session.user)
+  def admin?(%Base.Schema.User{} = user), do: user.role == 0
 end

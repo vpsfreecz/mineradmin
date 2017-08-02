@@ -15,8 +15,8 @@ defmodule MinerAdmin.Api.UserProgram.Create do
     use Api.UserProgram.Params
   end
 
-  def authorize(%HaveAPI.Request{}, user) do
-    if Base.User.admin?(user) do
+  def authorize(%HaveAPI.Request{}, session) do
+    if Base.User.admin?(session) do
       :allow
 
     else
@@ -42,5 +42,5 @@ defmodule MinerAdmin.Api.UserProgram.Create do
   end
 
   defp params(req, true), do: req.input
-  defp params(req, false), do: Map.put(req.input, :user, req.user.id)
+  defp params(req, false), do: Map.put(req.input, :user, req.user.user_id)
 end

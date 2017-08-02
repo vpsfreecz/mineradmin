@@ -6,10 +6,10 @@ defmodule MinerAdmin.Api.UserProgram.Stop do
   method :post
   route ":%{resource}_id/%{action}"
 
-  def authorize(_req, _user), do: :allow
+  def authorize(_req, _session), do: :allow
 
   def exec(req) do
-    case find(req.params[:userprogram_id], req.user) do
+    case find(req.params[:userprogram_id], req.user.user) do
       nil->
         {:error, "Object not found"}
 

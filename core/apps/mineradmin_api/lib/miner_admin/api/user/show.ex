@@ -7,9 +7,9 @@ defmodule MinerAdmin.Api.User.Show do
     use Api.User.Params
   end
 
-  def authorize(%HaveAPI.Request{}, _user), do: :allow
-  def authorize(_res, user) do
-    if Base.User.admin?(user) do
+  def authorize(%HaveAPI.Request{}, _session), do: :allow
+  def authorize(_res, session) do
+    if Base.User.admin?(session) do
       :allow
 
     else
@@ -20,7 +20,7 @@ defmodule MinerAdmin.Api.User.Show do
   def item(req) do
     req.params[:user_id]
     |> user_id()
-    |> find(req.user.id, Base.User.admin?(req.user))
+    |> find(req.user.user_id, Base.User.admin?(req.user))
     |> Api.resourcify([:auth_backend])
   end
 

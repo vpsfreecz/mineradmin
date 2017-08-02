@@ -19,9 +19,9 @@ defmodule MinerAdmin.Api.UserProgram.WebSocket do
   def websocket_init(type, req, opts) do
     conn = @connection.conn(req, type) |> Conn.fetch_query_params()
 
-    with {:ok, conn, user} <- authenticated?(conn, opts[:auth_chain]),
-         {:ok, user_prog} <- user_program(conn.params["user_program"], user),
-         true <- authorized?(user, user_prog),
+    with {:ok, conn, session} <- authenticated?(conn, opts[:auth_chain]),
+         {:ok, user_prog} <- user_program(conn.params["user_program"], session.user),
+         true <- authorized?(session.user, user_prog),
          {:ok, worker, accessor} <- subscribe(user_prog) do
 
       Process.monitor(worker)

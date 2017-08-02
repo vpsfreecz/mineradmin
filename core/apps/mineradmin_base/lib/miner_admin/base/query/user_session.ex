@@ -17,10 +17,12 @@ defmodule MinerAdmin.Base.Query.UserSession do
   end
 
   def one_time(params) do
-    %@schema{}
-    |> @schema.create_changeset(params)
-    |> @schema.update_changeset(%{closed_at: DateTime.utc_now, request_count: 1})
-    |> @repo.insert
+    {:ok, session} = %@schema{}
+      |> @schema.create_changeset(params)
+      |> @schema.update_changeset(%{closed_at: DateTime.utc_now, request_count: 1})
+      |> @repo.insert
+
+    @repo.preload(session, [:user])
   end
 
   def update(session, params) do

@@ -39,7 +39,7 @@ defmodule MinerAdmin.Api.Authentication.Token do
 
       session ->
         Model.UserSession.continue(session)
-        session.user
+        session
     end
   end
 

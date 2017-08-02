@@ -13,15 +13,15 @@ defmodule MinerAdmin.Api.UserProgram.Gpu.Create do
     use Api.UserProgram.Gpu.Params
   end
 
-  def authorize(_req, _user), do: :allow
+  def authorize(_req, _session), do: :allow
 
   def exec(req) do
-    case find_prog(req.params[:userprogram_id], req.user) do
+    case find_prog(req.params[:userprogram_id], req.user.user) do
       nil ->
         {:error, "UserProgram not found", http_status: 404}
 
       user_prog ->
-        case find_gpu(req.input.gpu, req.user) do
+        case find_gpu(req.input.gpu, req.user.user) do
           nil ->
             {:error, "Gpu not found", http_status: 404}
 
@@ -41,7 +41,7 @@ defmodule MinerAdmin.Api.UserProgram.Gpu.Create do
 
   defp add_gpu(user_prog, gpu) do
     case Base.Query.UserProgram.add_gpu(user_prog, gpu) do
-      {:ok, user_prog} ->
+      {:ok, _user_prog} ->
         %{id: gpu.id, gpu: [gpu.id]}
 
       {:error, changeset} ->
