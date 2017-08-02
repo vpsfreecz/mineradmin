@@ -5,27 +5,7 @@ defmodule MinerAdmin.Base.Program.EwbfMiner do
   @behaviour Base.Program
 
   def changeset(changeset, _type) do
-    Ecto.Changeset.validate_change(changeset, :cmdline, fn :cmdline, cmdline ->
-      args = Base.UserProgram.arguments(cmdline)
-      errors = Enum.reduce(
-        ~w(--cuda_devices --api),
-        [],
-        fn v, acc ->
-          if Enum.find(args, nil, &(&1 == v)) do
-            ["must not contain option #{v}" | acc]
-          else
-            acc
-          end
-        end
-      )
-
-      if length(errors) > 0 do
-        [cmdline: Enum.join(errors, "; ")]
-
-      else
-        []
-      end
-    end)
+    Base.UserProgram.exclude_arguments(changeset, ~w(--cuda_devices --api))
   end
 
   def can_start?(user_prog) do

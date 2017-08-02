@@ -74,4 +74,28 @@ defmodule MinerAdmin.Base.UserProgram do
       other -> other
     end
   end
+
+  def exclude_arguments(changeset, exclude) do
+    Ecto.Changeset.validate_change(changeset, :cmdline, fn :cmdline, cmdline ->
+      args = Base.UserProgram.arguments(cmdline)
+      errors = Enum.reduce(
+        exclude,
+        [],
+        fn v, acc ->
+          if Enum.find(args, nil, &(&1 == v)) do
+            ["must not contain option #{v}" | acc]
+          else
+            acc
+          end
+        end
+      )
+
+      if length(errors) > 0 do
+        [cmdline: Enum.join(errors, "; ")]
+
+      else
+        []
+      end
+    end)
+  end
 end
