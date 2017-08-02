@@ -16,7 +16,7 @@ defmodule MinerAdmin.Api.UserProgram.Log do
     datetime :inserted_at
   end
 
-  resource_route ':userprogram_id/%{resource}'
+  resource_route ':userprogram_id/log'
 
   actions [
     Api.UserProgram.Log.Index,

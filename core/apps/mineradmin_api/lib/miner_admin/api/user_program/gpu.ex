@@ -10,7 +10,7 @@ defmodule MinerAdmin.Api.UserProgram.Gpu do
     resource [Api.Gpu], value_label: :name
   end
 
-  resource_route ':userprogram_id/%{resource}'
+  resource_route ':userprogram_id/gpu'
 
   actions [
     Api.UserProgram.Gpu.Index,
