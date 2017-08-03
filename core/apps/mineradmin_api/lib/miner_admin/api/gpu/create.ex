@@ -18,7 +18,7 @@ defmodule MinerAdmin.Api.Gpu.Create do
 
   def authorize(_req, session), do: Api.Authorize.admin(session)
 
-  def exec(req) do
+  def create(req) do
     case Base.Query.Gpu.create(Api.associatify(req.input, [:user, :node])) do
       {:ok, gpu} ->
         Api.resourcify(gpu, [:user, :node])

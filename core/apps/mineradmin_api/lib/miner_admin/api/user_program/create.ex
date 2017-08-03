@@ -26,7 +26,7 @@ defmodule MinerAdmin.Api.UserProgram.Create do
 
   def authorize(_res, _user), do: :allow
 
-  def exec(req) do
+  def create(req) do
     ret = req
       |> params(Base.User.admin?(req.user))
       |> Api.associatify([:user, :program, :node])

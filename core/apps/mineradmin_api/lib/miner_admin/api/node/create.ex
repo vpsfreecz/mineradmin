@@ -13,7 +13,7 @@ defmodule MinerAdmin.Api.Node.Create do
 
   def authorize(_req, session), do: Api.Authorize.admin(session)
 
-  def exec(req) do
+  def create(req) do
     case Base.Query.Node.create(req.input) do
       {:ok, node} ->
         node

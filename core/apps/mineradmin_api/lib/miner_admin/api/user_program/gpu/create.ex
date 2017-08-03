@@ -15,7 +15,7 @@ defmodule MinerAdmin.Api.UserProgram.Gpu.Create do
 
   def authorize(_req, _session), do: :allow
 
-  def exec(req) do
+  def create(req) do
     case find_prog(req.params[:userprogram_id], req.user.user) do
       nil ->
         {:error, "UserProgram not found", http_status: 404}
