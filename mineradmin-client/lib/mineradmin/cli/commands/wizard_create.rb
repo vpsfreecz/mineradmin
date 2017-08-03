@@ -61,8 +61,8 @@ END
       @dialog.title = 'Select miner type'
 
       programs = @api.program.index
-      choices = programs.response.map do |p|
-        [p[:label], p[:description] && p[:description].split("\n")[0]]
+      choices = programs.map do |p|
+        [p.label, p.description && p.description.split("\n")[0]]
       end
 
       height = 0
@@ -72,7 +72,7 @@ END
       ret = @dialog.menu(text, choices, height, width, menu_height)
       return false unless ret
 
-      programs.response.detect { |p| p[:label] == ret }
+      programs.detect { |p| p.label == ret }
     end
 
     def get_label
@@ -94,9 +94,9 @@ END
       nodes = {}
       node_gpus = {}
 
-      @gpus.response.each do |gpu|
-        name = gpu[:node][:name] + '@' + gpu[:node][:domain]
-        nodes[name] = gpu[:node]
+      @gpus.each do |gpu|
+        name = gpu.node.name + '@' + gpu.node.domain
+        nodes[name] = gpu.node
         node_gpus[name] ||= 0
         node_gpus[name] += 1
       end
@@ -119,8 +119,8 @@ END
     end
 
     def select_gpus(node)
-      choices = @gpus.response.select { |g| g[:node][:id] == node[:id] }.map do |g|
-        [g[:uuid], "#{g[:name]} (##{g[:id]})", false]
+      choices = @gpus.select { |g| g.node_id == node.id }.map do |g|
+        [g.uuid, "#{g.name} (##{g.id})", false]
       end
 
       text = <<END
@@ -131,7 +131,7 @@ END
       ret = @dialog.checklist(text, choices)
       return false unless ret
 
-      @gpus.response.select { |g| ret.include?(g[:uuid]) }
+      @gpus.select { |g| ret.include?(g.uuid) }
 
     rescue EOFError
       []
@@ -193,13 +193,13 @@ END
 The following miner is going to be created:
 
   Program:
-    #{prog[:label]}
+    #{prog.label}
   Label:
     #{label}
   Arguments:
     #{cmdline}
   Node:
-    #{node[:name]}@#{node[:domain]}
+    #{node.name}@#{node.domain}
   GPUs:
     #{confirm_gpus(gpus)}
   After:
@@ -213,7 +213,7 @@ END
 
     def confirm_gpus(gpus)
       gpus.map do |gpu|
-        "#{gpu[:name]} (UUID #{gpu[:uuid]}, ID ##{gpu[:id]})"
+        "#{gpu.name} (UUID #{gpu.uuid}, ID ##{gpu.id})"
       end.join((' '*13) + "\n")
     end
 
@@ -244,21 +244,21 @@ END
         f.puts "Creating the user program..."
 
         user_prog = @api.userprogram.create(
-          program: prog[:id],
-          node: node[:id],
+          program: prog.id,
+          node: node.id,
           label: label,
           cmdline: cmdline,
         )
-        id = user_prog.response[:id]
+        id = user_prog.id
 
         f.puts "User program ID is ##{id}"
         f.puts "Adding GPUs..."
 
         gpus.each do |gpu|
-          f.puts "  adding #{gpu[:name]} (UUID #{gpu[:uuid]}, ID ##{gpu[:id]})"
+          f.puts "  adding #{gpu.name} (UUID #{gpu.uuid}, ID ##{gpu.id})"
 
           @api.userprogram.gpu.create(id,
-            gpu: gpu[:id]
+            gpu: gpu.id
           )
         end
 
