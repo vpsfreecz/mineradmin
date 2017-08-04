@@ -1,11 +1,7 @@
 # coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'mineradmin/client/version'
-
 Gem::Specification.new do |spec|
   spec.name          = 'mineradmin-client'
-  spec.version       = MinerAdmin::Client::VERSION
+  spec.version       = File.read('../VERSION').strip
   spec.authors       = ['Jakub Skokan']
   spec.email         = ['jakub.skokan@vpsfree.cz']
   spec.summary       =
