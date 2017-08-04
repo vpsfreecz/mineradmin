@@ -1,0 +1,3 @@
+-name node1@127.0.0.1
+-setcookie mineradmin-dev-cookie
+-env PATH <%= System.get_env("PATH") <> ":#{Path.join([System.cwd!, "..", "mockups"])}" %>

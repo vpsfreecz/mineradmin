@@ -6,6 +6,8 @@ defmodule MinerAdmin.Cluster.Strategy do
     connect  = Keyword.fetch!(opts, :connect)
     list_nodes = Keyword.fetch!(opts, :list_nodes)
 
+    Application.ensure_all_started(:mineradmin_base)
+
     nodes = Enum.map(
       MinerAdmin.Base.Query.Node.all,
       &(String.to_atom(&1.name <> "@" <> &1.domain))

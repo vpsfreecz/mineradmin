@@ -41,6 +41,6 @@ defmodule MinerAdmin.Base.Mixfile do
      {:postgrex, "~> 0.11"},
      {:ecto_enum, "~> 1.0"},
      {:timex, "~> 3.1"},
-     {:haveapi_client, path: "/home/aither/workspace/elixir/haveapi_client"}]
+     {:haveapi_client, path: "../../../haveapi_client"}]
   end
 end

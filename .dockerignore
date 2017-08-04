@@ -1,0 +1,11 @@
+.dockerignore
+.git
+.gitignore
+docker
+core/_build
+core/deps
+mineradmin-client
+minerd
+minerdctl
+mockups
+releases

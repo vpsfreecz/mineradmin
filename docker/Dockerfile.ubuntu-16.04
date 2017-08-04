@@ -1,0 +1,36 @@
+FROM ubuntu:16.04
+
+RUN apt-get update && \
+    apt-get -y upgrade
+
+RUN apt-get -y install locales && \
+    export LANG=en_US.UTF-8 && \
+    echo $LANG UTF-8 > /etc/locale.gen && \
+    locale-gen && \
+    update-locale LANG=$LANG
+
+RUN apt-get -y install curl make && \
+    curl -o erlang-solutions_1.0_all.deb \
+         https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && \
+    dpkg -i erlang-solutions_1.0_all.deb && \
+    rm -f erlang-solutions_1.0_all.deb && \
+    apt-get update && \
+    apt-get -y install erlang-dev erlang-parsetools elixir=1.4.5-1
+
+ENV LANG="en_US.UTF-8" \
+    LC_COLLATE="en_US.UTF-8" \
+    LC_CTYPE="en_US.UTF-8"
+
+RUN /usr/local/bin/mix local.hex --force && \
+    /usr/local/bin/mix local.rebar --force && \
+    /usr/local/bin/mix hex.info
+
+RUN mkdir -p /opt/mineradmin/core
+
+WORKDIR /opt/mineradmin
+COPY core core
+COPY VERSION .
+
+WORKDIR /opt/mineradmin/core
+RUN MIX_ENV=prod mix deps.get
+CMD ["bash"]
