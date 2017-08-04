@@ -7,8 +7,8 @@ defmodule MinerAdmin.Api.Gpu do
     use HaveAPI.Parameters
 
     integer :id
-    resource [Api.User]
-    resource [Api.Node]
+    resource [Api.User], value_label: :login
+    resource [Api.Node], value_label: :name
     string :vendor, validate: [include: [
       values: Base.Schema.Gpu.Vendor.__enum_map__
               |> Keyword.keys()
