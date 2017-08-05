@@ -9,7 +9,7 @@ RUN apt-get -y install locales && \
     locale-gen && \
     update-locale LANG=$LANG
 
-RUN apt-get -y install curl make && \
+RUN apt-get -y install curl make git && \
     curl -o erlang-solutions_1.0_all.deb \
          https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && \
     dpkg -i erlang-solutions_1.0_all.deb && \

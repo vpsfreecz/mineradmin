@@ -24,15 +24,16 @@ use Mix.Releases.Config,
 environment :dev do
   set dev_mode: true
   set include_erts: false
-  set cookie: :"mineradmin-dev-cookie"
+  set cookie: :"mineradmin-prod"
   set vm_args: "rel/dev.vm.args"
 end
 
 environment :prod do
   set include_erts: true
   set include_src: false
-  set cookie: :"mineradmin-prod-cookie"
-  set output_dir: "../releases/prod/core"
+  set cookie: :"mineradmin-dev"
+  set vm_args: "rel/prod.vm.args"
+  set output_dir: "../releases/prod/_build/core"
 end
 
 # You may define one or more releases in this file.

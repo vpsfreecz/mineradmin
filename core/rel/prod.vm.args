@@ -1,0 +1,3 @@
+-name <%= System.get_env("NODE") || "node1@127.0.0.1" %>
+-setcookie <%= System.get_env("COOKIE") %>
+-smp auto
