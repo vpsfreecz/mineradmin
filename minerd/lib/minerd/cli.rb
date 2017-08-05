@@ -1,7 +1,7 @@
 module Minerd::Cli
   def self.run
     Minerd::State.get
-    server = Minerd::Server.new(5000)
+    server = Minerd::Server.new
     server.run
 
   rescue Interrupt

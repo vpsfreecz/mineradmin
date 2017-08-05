@@ -15,7 +15,7 @@ class Minerdctl::Cli
       exit(false)
     end
 
-    c = Minerdctl::Client.new('localhost', 5000)
+    c = Minerdctl::Client.new
 
     cli = new(c)
     cli.run_cmd(ARGV[0], ARGV[1..-1])

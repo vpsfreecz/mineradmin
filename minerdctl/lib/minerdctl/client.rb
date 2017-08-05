@@ -4,8 +4,8 @@ require 'json'
 class Minerdctl::Client
   attr_reader :socket
 
-  def initialize(host, port)
-    @socket = TCPSocket.new(host, port)
+  def initialize
+    @socket = UNIXSocket.new('/run/minerd/minerd.sock')
   end
 
   def close

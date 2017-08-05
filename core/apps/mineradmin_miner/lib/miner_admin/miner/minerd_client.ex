@@ -73,7 +73,10 @@ defmodule MinerAdmin.Miner.MinerdClient do
 
   # Server implementation
   def init(state) do
-    {:ok, socket} = :gen_tcp.connect('localhost', 5000, active: true, packet: :line)
+    {:ok, socket} = :gen_tcp.connect(
+      {:local, '/run/minerd/minerd.sock'}, 0,
+      [:local, active: true, packet: :line]
+    )
     {:ok, %{state | socket: socket}}
   end
 

@@ -1,12 +1,9 @@
 require 'socket'
 
 class Minerd::Server
-  def initialize(port)
-    @port = port
-  end
-
   def run
-    @socket = TCPServer.new(@port)
+    @socket = UNIXServer.new('/run/minerd/minerd.sock')
+    File.chmod(0660, '/run/minerd/minerd.sock')
 
     loop do
       s = @socket.accept
