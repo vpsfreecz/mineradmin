@@ -11,4 +11,5 @@ cluster runs only what it needs:
  - Cluster - simple app that ensures that nodes within the cluster are connected
  - Miner - application running on all worker nodes, serving as an interface
    to Minerd
+ - Control - interface between API and Miner
  - API - public API, uses `model` and `base`

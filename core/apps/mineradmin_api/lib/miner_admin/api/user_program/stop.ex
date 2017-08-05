@@ -2,6 +2,7 @@ defmodule MinerAdmin.Api.UserProgram.Stop do
   use HaveAPI.Action
 
   alias MinerAdmin.Base
+  alias MinerAdmin.Control
 
   method :post
   route ":%{resource}_id/%{action}"
@@ -14,7 +15,7 @@ defmodule MinerAdmin.Api.UserProgram.Stop do
         {:error, "Object not found"}
 
       user_prog ->
-        Base.UserProgram.stop(user_prog, req.user)
+        Control.UserProgram.stop(user_prog, req.user)
         :ok
     end
   end

@@ -1,4 +1,4 @@
-defmodule MinerAdmin.Miner.Dispatcher do
+defmodule MinerAdmin.Control.Dispatcher do
   @moduledoc """
   The dispatcher is a process running on every worker node. It receives commands
   from the api/base/model to manage running programs on a particular node.

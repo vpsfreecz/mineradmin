@@ -3,51 +3,6 @@ defmodule MinerAdmin.Base.UserProgram do
   alias MinerAdmin.Base
   alias MinerAdmin.Miner
 
-  def create(params) do
-    case Base.Query.UserProgram.create(params) do
-      {:ok, user_prog} ->
-        {:ok, _child} = Miner.Dispatcher.create(user_prog)
-        {:ok, user_prog}
-
-      {:error, changeset} ->
-        {:error, changeset}
-    end
-  end
-
-  def delete(user_prog) do
-    Miner.Dispatcher.remove(user_prog)
-    Base.Query.UserProgram.delete(user_prog)
-  end
-
-  def start(user_prog, session) do
-    case Base.Program.can_start?(user_prog) do
-      true ->
-        {:ok, user_prog} = Base.Query.UserProgram.activate(user_prog, true)
-        Miner.Dispatcher.start(user_prog, session)
-
-      {:error, msg} ->
-        {:error, msg}
-    end
-  end
-
-  def stop(user_prog, session) do
-    {:ok, user_prog} = Base.Query.UserProgram.activate(user_prog, false)
-    Miner.Dispatcher.stop(user_prog, session)
-  end
-
-  def restart(user_prog, session) do
-    with true <- Base.Program.can_start?(user_prog),
-         {:ok, user_prog} <- Base.Query.UserProgram.activate(user_prog, true),
-         :ok <- ensure_stopped(user_prog, session),
-         :ok <- Miner.Dispatcher.start(user_prog, session) do
-      :ok
-
-    else
-      {:error, msg} ->
-        {:error, msg}
-    end
-  end
-
   def node_name(user_prog) do
     :"#{user_prog.node.name}@#{user_prog.node.domain}"
   end
@@ -65,14 +20,6 @@ defmodule MinerAdmin.Base.UserProgram do
 
   def has_gpus?(user_prog) do
     Base.Query.UserProgram.gpus_count(user_prog.id) > 0
-  end
-
-  def ensure_stopped(user_prog, session) do
-    case Miner.Dispatcher.stop(user_prog, session) do
-      :ok -> :ok
-      :not_started -> :ok
-      other -> other
-    end
   end
 
   def exclude_arguments(changeset, exclude) do

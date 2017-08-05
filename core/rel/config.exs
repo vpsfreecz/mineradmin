@@ -47,6 +47,7 @@ release :all do
     mineradmin_base: :permanent,
     mineradmin_cluster: :permanent,
     mineradmin_miner: :permanent,
+    mineradmin_control: :permanent,
     mineradmin_model: :permanent,
     mineradmin_api: :permanent,
   ]
@@ -59,5 +60,6 @@ release :worker do
     mineradmin_base: :permanent,
     mineradmin_cluster: :permanent,
     mineradmin_miner: :permanent,
+    mineradmin_control: :permanent,
   ]
 end
