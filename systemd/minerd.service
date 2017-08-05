@@ -1,0 +1,14 @@
+[Unit]
+Description=Process manager for MinerAdmin
+Wants=multi-user.target
+After=multi-user.target
+
+[Service]
+User=minerd
+Group=mineradmin
+RuntimeDirectory=minerd
+RuntimeDirectoryMode=0750
+ExecStart=/usr/local/bin/minerd
+
+[Install]
+WantedBy=default.target

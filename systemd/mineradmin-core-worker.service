@@ -1,0 +1,15 @@
+[Unit]
+Description=MinerAdmin Core
+Wants=network-online.target minerd.service
+After=network-online.target minerd.service
+
+[Service]
+Type=forking
+User=mineradmin
+Group=mineradmin
+ExecStart=/opt/mineradmin/core/bin/worker start
+ExecStop=/opt/mineradmin/core/bin/worker stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
