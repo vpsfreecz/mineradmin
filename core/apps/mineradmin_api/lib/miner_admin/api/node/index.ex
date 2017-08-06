@@ -9,7 +9,7 @@ defmodule MinerAdmin.Api.Node.Index do
 
   def authorize(_req, _session), do: :allow
 
-  def items(_req), do: Base.Query.Node.all
+  def items(_req), do: Api.Node.resources(Base.Query.Node.all)
 
   def count(_req), do: Base.Query.Node.count
 end
