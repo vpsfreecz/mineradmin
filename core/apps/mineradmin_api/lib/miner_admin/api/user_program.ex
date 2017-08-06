@@ -12,6 +12,7 @@ defmodule MinerAdmin.Api.UserProgram do
     resource [Api.Node], value_label: :name
     string :label
     string :cmdline
+    boolean :read_only
     boolean :active
     boolean :running
     datetime :inserted_at
@@ -35,7 +36,9 @@ defmodule MinerAdmin.Api.UserProgram do
   ]
 
   def resource(user_prog) when is_map(user_prog) do
-    Map.put(user_prog, :running, Api.UserProgram.Monitor.running?(user_prog))
+    user_prog
+    |> Map.put(:running, Api.UserProgram.Monitor.running?(user_prog))
+    |> Map.put(:read_only, Base.Program.read_only?(user_prog))
   end
 
   def resources(user_progs) when is_list(user_progs) do
