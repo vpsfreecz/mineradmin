@@ -31,14 +31,9 @@ defmodule MinerAdmin.Api.UserProgram.Monitor do
   end
 
   def handle_call({:monitor, user_prog}, _from, state) do
-    case Base.UserProgram.monitor(user_prog, self()) do
-      {:badrpc, _reason} ->
-        {:reply, false, state}
-
-      {worker, status} ->
-        :ets.insert(@table, {user_prog.id, status})
-        ref = Process.monitor(worker)
-        {:reply, status, Map.put(state, ref, user_prog.id)}
+    case cached(user_prog) do
+      nil -> monitor(user_prog, state)
+      status -> {:reply, status, state}
     end
   end
 
@@ -51,5 +46,17 @@ defmodule MinerAdmin.Api.UserProgram.Monitor do
     Logger.debug "Monitored worker exited with #{reason}"
     :ets.delete(@table, state[ref])
     {:noreply, Map.delete(state, ref)}
+  end
+
+  defp monitor(user_prog, state) do
+    case Base.UserProgram.monitor(user_prog, self()) do
+      {:badrpc, _reason} ->
+        {:reply, false, state}
+
+      {worker, status} ->
+        :ets.insert(@table, {user_prog.id, status})
+        ref = Process.monitor(worker)
+        {:reply, status, Map.put(state, ref, user_prog.id)}
+    end
   end
 end
