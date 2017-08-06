@@ -2,7 +2,6 @@ defmodule MinerAdmin.Api.UserProgram.Start do
   use HaveAPI.Action
 
   alias MinerAdmin.Base
-  alias MinerAdmin.Control
 
   method :post
   route ":%{resource}_id/%{action}"
@@ -15,7 +14,7 @@ defmodule MinerAdmin.Api.UserProgram.Start do
         {:error, "Object not found"}
 
       user_prog ->
-        case Control.UserProgram.start(user_prog, req.user) do
+        case Base.UserProgram.start(user_prog, req.user) do
           {:error, msg} ->
             {:error, msg}
 

@@ -1,7 +1,6 @@
 defmodule MinerAdmin.Base.UserProgram do
   import Kernel, except: [node: 1]
   alias MinerAdmin.Base
-  alias MinerAdmin.Miner
 
   def node_name(user_prog) do
     :"#{user_prog.node.name}@#{user_prog.node.domain}"
@@ -44,5 +43,66 @@ defmodule MinerAdmin.Base.UserProgram do
         []
       end
     end)
+  end
+
+  def create(params) do
+    case Base.Query.UserProgram.create(params) do
+      {:ok, user_prog} ->
+        {:ok, _child} = call_worker(user_prog, :create, [user_prog])
+        {:ok, user_prog}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  def delete(user_prog) do
+    call_worker(user_prog, :remove, [user_prog])
+    Base.Query.UserProgram.delete(user_prog)
+  end
+
+  def start(user_prog, session) do
+    case Base.Program.can_start?(user_prog) do
+      true ->
+        {:ok, user_prog} = Base.Query.UserProgram.activate(user_prog, true)
+        call_worker(user_prog, :start, [user_prog, session])
+
+      {:error, msg} ->
+        {:error, msg}
+    end
+  end
+
+  def stop(user_prog, session) do
+    {:ok, user_prog} = Base.Query.UserProgram.activate(user_prog, false)
+    call_worker(user_prog, :stop, [user_prog, session])
+  end
+
+  def restart(user_prog, session) do
+    with true <- Base.Program.can_start?(user_prog),
+         {:ok, user_prog} <- Base.Query.UserProgram.activate(user_prog, true),
+         :ok <- ensure_stopped(user_prog, session),
+         :ok <- call_worker(user_prog, :start, [user_prog, session]) do
+      :ok
+
+    else
+      {:error, msg} ->
+        {:error, msg}
+    end
+  end
+
+  def ensure_stopped(user_prog, session) do
+    case call_worker(user_prog, :stop, [user_prog, session]) do
+      :ok -> :ok
+      :not_started -> :ok
+      other -> other
+    end
+  end
+
+  def attach(user_prog, receiver) do
+    call_worker(user_prog, :attach, [user_prog, receiver])
+  end
+
+  defp call_worker(user_prog, func, args) do
+    :rpc.call(node_name(user_prog), MinerAdmin.Miner.Dispatcher, func, args)
   end
 end

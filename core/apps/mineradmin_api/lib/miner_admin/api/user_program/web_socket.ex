@@ -2,7 +2,6 @@ defmodule MinerAdmin.Api.UserProgram.WebSocket do
   require Logger
   alias Plug.Conn
   alias MinerAdmin.Base
-  alias MinerAdmin.Control
 
   @behaviour :cowboy_websocket_handler
   @connection Plug.Adapters.Cowboy.Conn
@@ -95,6 +94,6 @@ defmodule MinerAdmin.Api.UserProgram.WebSocket do
   end
 
   defp subscribe(user_prog) do
-    Control.Dispatcher.attach(user_prog, self())
+    Base.UserProgram.attach(user_prog, self())
   end
 end

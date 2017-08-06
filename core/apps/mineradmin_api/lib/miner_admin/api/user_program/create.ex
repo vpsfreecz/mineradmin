@@ -2,7 +2,6 @@ defmodule MinerAdmin.Api.UserProgram.Create do
   use HaveAPI.Action.Create
   alias MinerAdmin.Api
   alias MinerAdmin.Base
-  alias MinerAdmin.Control
 
   input do
     use Api.UserProgram.Params, only: ~w(user program node label cmdline)a
@@ -31,7 +30,7 @@ defmodule MinerAdmin.Api.UserProgram.Create do
     ret = req
       |> params(Base.User.admin?(req.user))
       |> Api.associatify([:user, :program, :node])
-      |> Control.UserProgram.create()
+      |> Base.UserProgram.create()
 
     case ret do
       {:ok, user_prog} ->
