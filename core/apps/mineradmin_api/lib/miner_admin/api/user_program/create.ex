@@ -34,7 +34,9 @@ defmodule MinerAdmin.Api.UserProgram.Create do
 
     case ret do
       {:ok, user_prog} ->
-        Api.resourcify(user_prog, [:user, :program, :node])
+        user_prog
+        |> Api.UserProgram.resource()
+        |> Api.resourcify([:user, :program, :node])
 
       {:error, changeset} ->
         Api.format_errors(changeset)

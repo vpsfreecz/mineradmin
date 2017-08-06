@@ -12,6 +12,7 @@ defmodule MinerAdmin.Api.UserProgram.Show do
   def item(req) do
     req.params[:userprogram_id]
     |> Base.Query.UserProgram.get(req.user.user)
+    |> Api.UserProgram.resource()
     |> Api.resourcify([:user, :program, :node])
   end
 end

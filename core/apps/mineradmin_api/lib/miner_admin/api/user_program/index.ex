@@ -12,6 +12,7 @@ defmodule MinerAdmin.Api.UserProgram.Index do
   def items(req) do
     req.user.user
     |> Base.Query.UserProgram.all()
+    |> Api.UserProgram.resources()
     |> Api.resourcify([:user, :program, :node])
   end
 

@@ -33,7 +33,9 @@ defmodule MinerAdmin.Api.UserProgram.Update do
   def update(user_prog, params) do
     case Base.Query.UserProgram.update(user_prog, params) do
       {:ok, user_prog} ->
-        Api.resourcify(user_prog, [:user, :program, :node])
+        user_prog
+        |> Api.UserProgram.resource()
+        |> Api.resourcify([:user, :program, :node])
 
       {:error, changeset} ->
         Api.format_errors(changeset)

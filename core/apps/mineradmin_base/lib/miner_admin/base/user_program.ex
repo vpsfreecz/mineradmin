@@ -102,6 +102,17 @@ defmodule MinerAdmin.Base.UserProgram do
     call_worker(user_prog, :attach, [user_prog, receiver])
   end
 
+  def running?(user_prog) do
+    case call_worker(user_prog, :running?, [user_prog]) do
+      status when is_boolean(status) -> status
+      {:badrpc, _reason} -> false
+    end
+  end
+
+  def monitor(user_prog, receiver) do
+    call_worker(user_prog, :monitor, [user_prog, receiver])
+  end
+
   defp call_worker(user_prog, func, args) do
     :rpc.call(node_name(user_prog), MinerAdmin.Miner.Dispatcher, func, args)
   end

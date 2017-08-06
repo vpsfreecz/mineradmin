@@ -13,6 +13,7 @@ defmodule MinerAdmin.Api.UserProgram do
     string :label
     string :cmdline
     boolean :active
+    boolean :running
     datetime :inserted_at
     datetime :updated_at
   end
@@ -32,4 +33,12 @@ defmodule MinerAdmin.Api.UserProgram do
     Api.UserProgram.Gpu,
     Api.UserProgram.Log,
   ]
+
+  def resource(user_prog) when is_map(user_prog) do
+    Map.put(user_prog, :running, Api.UserProgram.Monitor.running?(user_prog))
+  end
+
+  def resources(user_progs) when is_list(user_progs) do
+    for up <- user_progs, do: resource(up)
+  end
 end

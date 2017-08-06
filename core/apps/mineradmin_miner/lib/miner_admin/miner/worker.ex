@@ -12,6 +12,7 @@ defmodule MinerAdmin.Miner.Worker do
       id: nil,
       running: nil,
       subscribers: [],
+      monitors: [],
     }, opts)
   end
 
@@ -33,6 +34,10 @@ defmodule MinerAdmin.Miner.Worker do
 
   def running?(prog) do
     GenServer.call(via_tuple(prog), :running?)
+  end
+
+  def monitor(prog, receiver) do
+    GenServer.call(via_tuple(prog), {:monitor, prog, receiver})
   end
 
   def via_tuple(prog) do
@@ -72,7 +77,7 @@ defmodule MinerAdmin.Miner.Worker do
       :ok = Miner.MinerdClient.detach(state.minerd)
       :ok = Miner.MinerdClient.stop(state.minerd, state.id)
       Base.UserProgramLog.log(prog, session, :stop, nil)
-      {:reply, :ok, %{state | program: prog, running: false}}
+      {:reply, :ok, %{state | program: prog} |> set_status(false)}
 
     else
       {:reply, :not_started, state}
@@ -98,16 +103,32 @@ defmodule MinerAdmin.Miner.Worker do
     {:reply, state.running, state}
   end
 
+  def handle_call({:monitor, prog, receiver}, _from, state) do
+    ref = Process.monitor(receiver)
+
+    {
+      :reply,
+      {self(), state.running},
+      %{state | monitors: [{ref, receiver} | state.monitors]}
+    }
+  end
+
   # MinerdClient exited
   def handle_info({:EXIT, _from, :closed}, state) do
     # Restart the server, open new connection to minerd
-    handle_cast(:startup, %{state | minerd: nil, running: false})
+    handle_cast(:startup, %{state | minerd: nil} |> set_status(false))
   end
 
   # A subscriber has exited
   def handle_info({:DOWN, ref, :process, pid, reason}, state) do
-    Logger.debug "Subscriber has exited with #{reason}"
-    {:noreply, update_in(state.subscribers, &List.delete(&1, {ref, pid}))}
+    if List.keyfind(state.subscribers, ref, 0) do
+      Logger.debug "Subscriber has exited with #{reason}"
+      {:noreply, update_in(state.subscribers, &List.delete(&1, {ref, pid}))}
+
+    else
+      Logger.debug "Monitor has exited with #{reason}"
+      {:noreply, update_in(state.monitors, &List.delete(&1, {ref, pid}))}
+    end
   end
 
   # Output from MinerdClient
@@ -123,7 +144,7 @@ defmodule MinerAdmin.Miner.Worker do
     Logger.debug "Process exited with status #{status}, restarting in 5s"
     Base.UserProgramLog.log(state.program, nil, :exit, %{status: status})
     Process.send_after(self(), :autorestart, 5000)
-    {:noreply, %{state | running: false}}
+    {:noreply, set_status(state, false)}
   end
 
   def handle_info({:stream, _cmd, _data}, %{running: false} = state) do
@@ -180,7 +201,7 @@ defmodule MinerAdmin.Miner.Worker do
   end
 
   defp startup(state, false) do
-    {:noreply, %{state | running: false}}
+    {:noreply, set_status(state, false)}
   end
 
   defp do_start(state, session \\ nil) do
@@ -198,13 +219,21 @@ defmodule MinerAdmin.Miner.Worker do
         {:ok, do_attach(state, id)}
 
       {:error, msg} ->
-        {:error, msg, %{state | running: false}}
+        {:error, msg, set_status(state, false)}
     end
   end
 
   defp do_attach(state, id) do
     Logger.debug "Attaching to minerd process #{id}"
     :ok = Miner.MinerdClient.attach(state.minerd, id, self())
-    %{state | id: id, running: true}
+    %{state | id: id} |> set_status(true)
+  end
+
+  defp set_status(state, status) do
+    for {_ref, pid} <- state.monitors do
+      send(pid, {:user_program, :monitor, state.program.id, status})
+    end
+
+    %{state | running: status}
   end
 end

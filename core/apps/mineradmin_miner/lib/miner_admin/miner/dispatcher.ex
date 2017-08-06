@@ -39,4 +39,12 @@ defmodule MinerAdmin.Miner.Dispatcher do
   def attach(user_prog, receiver) do
     Miner.Worker.attach(user_prog, receiver)
   end
+
+  def running?(user_prog) do
+    Miner.Worker.running?(user_prog)
+  end
+
+  def monitor(user_prog, receiver) do
+    Miner.Worker.monitor(user_prog, receiver)
+  end
 end
