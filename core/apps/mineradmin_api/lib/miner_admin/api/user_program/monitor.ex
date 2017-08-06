@@ -4,7 +4,7 @@ defmodule MinerAdmin.Api.UserProgram.Monitor do
   require Logger
   alias MinerAdmin.Base
 
-  @table :user_program_monitor
+  @table __MODULE__
 
   # Client API
   def start_link do
