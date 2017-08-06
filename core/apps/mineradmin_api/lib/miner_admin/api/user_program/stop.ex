@@ -14,8 +14,16 @@ defmodule MinerAdmin.Api.UserProgram.Stop do
         {:error, "Object not found"}
 
       user_prog ->
-        Base.UserProgram.stop(user_prog, req.user)
-        :ok
+        case Base.UserProgram.stop(user_prog, req.user) do
+          :ok ->
+            :ok
+
+          {:error, msg} ->
+            {:error, msg}
+
+          {:error, msg, opts} ->
+            {:error, msg, opts}
+        end
     end
   end
 

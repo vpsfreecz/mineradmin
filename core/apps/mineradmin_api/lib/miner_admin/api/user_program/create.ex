@@ -38,6 +38,12 @@ defmodule MinerAdmin.Api.UserProgram.Create do
         |> Api.UserProgram.resource()
         |> Api.resourcify([:user, :program, :node])
 
+      {:error, msg} when is_binary(msg) ->
+        {:error, msg}
+
+      {:error, msg, opts} ->
+        {:error, msg, opts}
+
       {:error, changeset} ->
         Api.format_errors(changeset)
     end

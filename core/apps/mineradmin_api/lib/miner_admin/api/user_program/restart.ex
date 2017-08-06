@@ -18,6 +18,9 @@ defmodule MinerAdmin.Api.UserProgram.Restart do
           {:error, msg} ->
             {:error, msg}
 
+          {:error, msg, opts} ->
+            {:error, msg, opts}
+
           _ ->
             :ok
         end

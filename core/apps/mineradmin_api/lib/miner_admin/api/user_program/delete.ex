@@ -22,6 +22,12 @@ defmodule MinerAdmin.Api.UserProgram.Delete do
       {:ok, _} ->
         :ok
 
+      {:error, msg} when is_binary(msg) ->
+        {:error, msg}
+
+      {:error, msg, opts} ->
+        {:error, msg, opts}
+
       {:error, changeset} ->
         Api.format_errors(changeset)
     end
