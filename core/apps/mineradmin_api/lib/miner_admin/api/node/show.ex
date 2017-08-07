@@ -9,9 +9,7 @@ defmodule MinerAdmin.Api.Node.Show do
 
   def authorize(_req, _session), do: :allow
 
-  def item(req) do
-    req.params[:node_id]
-    |> Base.Query.Node.get()
-    |> Api.Node.resource()
-  end
+  def find(req), do: Base.Query.Node.get(req.params[:node_id])
+  def check(_req, _item), do: true
+  def return(_req, item), do: Api.Node.resource(item)
 end

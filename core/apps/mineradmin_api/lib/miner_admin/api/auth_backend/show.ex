@@ -9,5 +9,7 @@ defmodule MinerAdmin.Api.AuthBackend.Show do
 
   def authorize(_req, session), do: Api.Authorize.admin(session)
 
-  def item(req), do: Base.Query.AuthBackend.get(req.params[:authbackend_id])
+  def find(req), do: Base.Query.AuthBackend.get(req.params[:authbackend_id])
+  def check(req, _item), do: Base.User.admin?(req.user)
+  def return(_req, item), do: item
 end

@@ -8,8 +8,5 @@ defmodule MinerAdmin.Api.Program.Show do
   end
 
   def authorize(_req, _session), do: :allow
-
-  def item(req) do
-    Base.Query.Program.get(req.params[:program_id])
-  end
+  def find(req), do: Base.Query.Program.get(req.params[:program_id])
 end

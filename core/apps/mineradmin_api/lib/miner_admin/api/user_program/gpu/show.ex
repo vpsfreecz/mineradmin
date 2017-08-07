@@ -9,7 +9,7 @@ defmodule MinerAdmin.Api.UserProgram.Gpu.Show do
 
   def authorize(_req, _session), do: :allow
 
-  def item(req) do
+  def find(req) do
     case find_prog(req.params[:userprogram_id], req.user.user) do
       nil ->
         {:error, "UserProgram not found", http_status: 404}

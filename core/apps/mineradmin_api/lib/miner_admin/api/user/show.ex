@@ -17,17 +17,20 @@ defmodule MinerAdmin.Api.User.Show do
     end
   end
 
-  def item(req) do
+  def find(req) do
     req.params[:user_id]
     |> user_id()
-    |> find(req.user.user_id, Base.User.admin?(req.user))
-    |> Api.resourcify([:auth_backend])
+    |> do_find(req.user.user_id, Base.User.admin?(req.user))
   end
+
+  def check(req, item), do: Base.User.admin?(req.user) || item.id == req.user.user_id
+
+  def return(_req, item), do: Api.resourcify(item, [:auth_backend])
 
   defp user_id(id) when is_binary(id), do: String.to_integer(id)
   defp user_id(id) when is_integer(id), do: id
 
-  defp find(id, _user_id, true), do: Base.Query.User.get(id)
-  defp find(user_id, user_id, false), do: Base.Query.User.get(user_id)
-  defp find(_, _, false), do: nil
+  defp do_find(id, _user_id, true), do: Base.Query.User.get(id)
+  defp do_find(user_id, user_id, false), do: Base.Query.User.get(user_id)
+  defp do_find(_, _, false), do: nil
 end

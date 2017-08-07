@@ -13,7 +13,10 @@ defmodule MinerAdmin.Api do
       associations,
       struct,
       fn assoc, acc ->
-        %{acc | assoc => assoc_to_resource(Map.fetch!(struct, :"#{assoc}_id"))}
+        %{acc | assoc => assoc_to_resource(
+          Map.fetch!(struct, :"#{assoc}_id"),
+          Map.fetch!(struct, assoc)
+        )}
       end
     )
   end
@@ -31,8 +34,8 @@ defmodule MinerAdmin.Api do
     )
   end
 
-  def assoc_to_resource(nil), do: nil
-  def assoc_to_resource(id), do: [id]
+  def assoc_to_resource(nil, _item), do: nil
+  def assoc_to_resource(id, item), do: {[id], item}
 
   def resource_to_assoc(data, assoc) do
     if Map.has_key?(data, assoc) do

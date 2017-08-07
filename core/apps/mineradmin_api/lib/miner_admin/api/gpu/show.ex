@@ -8,10 +8,7 @@ defmodule MinerAdmin.Api.Gpu.Show do
   end
 
   def authorize(_req, _session), do: :allow
-
-  def item(req) do
-    req.params[:gpu_id]
-    |> Base.Query.Gpu.get(req.user.user)
-    |> Api.resourcify([:user, :node])
-  end
+  def find(req), do: Base.Query.Gpu.get(req.params[:gpu_id], req.user.user)
+  def check(req, item), do: Base.User.admin?(req.user) || item.user_id == req.user.user_id
+  def return(_req, item), do: Api.resourcify(item, [:user, :node])
 end
