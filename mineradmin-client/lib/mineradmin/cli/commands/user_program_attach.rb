@@ -109,17 +109,19 @@ module MinerAdmin::CLI::Commands
         exit(false)
       end
 
+      user_prog = @api.userprogram.show(args[0].strip)
+
       tty do
         EventMachine.run do
           ws = WebSocketHandler.connect(
             uri: File.join(
               @api.communicator.url,
-              "user-program-io?user_program=#{args[0].strip}"
+              "user-program-io?user_program=#{user_prog.id}"
             ),
             headers: auth_headers
           )
 
-          ws.read_only = @opts[:ro]
+          ws.read_only = user_prog.read_only ? true : @opts[:ro]
 
           ws.onopen do
             ws.resize
@@ -154,6 +156,10 @@ module MinerAdmin::CLI::Commands
           end
         end
       end
+
+    rescue HaveAPI::Client::ActionFailed => e
+      warn "Unable to attach: #{e.message}"
+      exit(false)
     end
 
     protected
