@@ -3,8 +3,9 @@ defmodule MinerAdmin.Base.Query.User do
 
   def count, do: @repo.aggregate(@schema, :count, :id)
 
-  def all do
+  def all(opts \\ []) do
     from(u in @schema, preload: [:auth_backend])
+    |> paginate(opts)
     |> @repo.all()
   end
 

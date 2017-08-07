@@ -10,7 +10,9 @@ defmodule MinerAdmin.Api.Gpu.Index do
   def authorize(_req, _session), do: :allow
 
   def items(req) do
-    Api.resourcify(Base.Query.Gpu.all(req.user.user), [:user, :node])
+    req.user.user
+    |> Base.Query.Gpu.all(Api.paginable(req.input))
+    |> Api.resourcify([:user, :node])
   end
 
   def count(req), do: Base.Query.Gpu.count(req.user.user)

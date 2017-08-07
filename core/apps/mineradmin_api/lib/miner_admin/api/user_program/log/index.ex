@@ -15,7 +15,7 @@ defmodule MinerAdmin.Api.UserProgram.Log.Index do
         {:error, "UserProgram not found", http_status: 404}
 
       user_prog ->
-        Base.Query.UserProgramLog.all(user_prog)
+        Base.Query.UserProgramLog.all(user_prog, Api.paginable(req.input))
     end
   end
 

@@ -1,7 +1,7 @@
 defmodule MinerAdmin.Base.Query.AuthBackend do
   use MinerAdmin.Base.Query
 
-  def all, do: @repo.all(@schema)
+  def all(opts \\ []), do: @schema |> paginate(opts) |> @repo.all()
 
   def count, do: @repo.aggregate(@schema, :count, :id)
 

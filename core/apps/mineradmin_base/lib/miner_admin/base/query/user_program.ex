@@ -3,8 +3,9 @@ defmodule MinerAdmin.Base.Query.UserProgram do
 
   def count(user), do: @repo.aggregate(query_for(user), :count, :id)
 
-  def all(user) do
+  def all(user, opts \\ []) do
     from(up in query_for(user), preload: [:user, :program, :node])
+    |> paginate(opts)
     |> @repo.all()
   end
 

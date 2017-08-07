@@ -3,8 +3,9 @@ defmodule MinerAdmin.Base.Query.Gpu do
 
   def count(user), do: @repo.aggregate(query_for(user), :count, :id)
 
-  def all(user) do
+  def all(user, opts \\ []) do
     from(gpu in query_for(user), preload: [:user, :node])
+    |> paginate(opts)
     |> @repo.all()
   end
 

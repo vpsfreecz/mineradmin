@@ -9,7 +9,11 @@ defmodule MinerAdmin.Api.AuthBackend.Index do
 
   def authorize(_req, session), do: Api.Authorize.admin(session)
 
-  def items(_req), do: Base.Query.AuthBackend.all
+  def items(req) do
+    req.input
+    |> Api.paginable()
+    |> Base.Query.AuthBackend.all()
+  end
 
   def count(_req), do: Base.Query.AuthBackend.count
 end

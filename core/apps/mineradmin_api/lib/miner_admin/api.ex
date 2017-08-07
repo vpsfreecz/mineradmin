@@ -61,4 +61,9 @@ defmodule MinerAdmin.Api do
       opts,
     }
   end
+
+  @doc "Extracts pagination parameters from action input."
+  def paginable(input) do
+    Enum.filter(input, fn {k, _v} -> k in [:limit, :offset] end)
+  end
 end

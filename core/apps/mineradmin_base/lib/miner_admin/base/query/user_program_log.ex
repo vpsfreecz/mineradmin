@@ -1,9 +1,10 @@
 defmodule MinerAdmin.Base.Query.UserProgramLog do
   use MinerAdmin.Base.Query
 
-  def all(user_prog) do
+  def all(user_prog, opts) do
     user_prog
     |> query()
+    |> paginate(opts)
     |> @repo.all()
   end
 

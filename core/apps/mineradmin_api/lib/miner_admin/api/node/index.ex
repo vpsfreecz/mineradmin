@@ -7,9 +7,14 @@ defmodule MinerAdmin.Api.Node.Index do
     use Api.Node.Params
   end
 
-  def authorize(_req, _session), do: :allow
+  def authorize(req, _session), do: :allow
 
-  def items(_req), do: Api.Node.resources(Base.Query.Node.all)
+  def items(req) do
+    req.input
+    |> Api.paginable()
+    |> Base.Query.Node.all()
+    |> Api.Node.resources()
+  end
 
   def count(_req), do: Base.Query.Node.count
 end

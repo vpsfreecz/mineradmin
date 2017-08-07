@@ -9,8 +9,10 @@ defmodule MinerAdmin.Api.Program.Index do
 
   def authorize(_req, _session), do: :allow
 
-  def items(_req) do
-    Base.Query.Program.all
+  def items(req) do
+    req.input
+    |> Api.paginable()
+    |> Base.Query.Program.all()
   end
 
   def count(_req), do: Base.Query.Program.count

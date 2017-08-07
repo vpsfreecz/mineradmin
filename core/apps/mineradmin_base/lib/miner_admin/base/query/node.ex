@@ -3,7 +3,7 @@ defmodule MinerAdmin.Base.Query.Node do
 
   def count, do: @repo.aggregate(@schema, :count, :id)
 
-  def all, do: @repo.all(@schema)
+  def all(opts \\ []), do: @schema |> paginate(opts) |> @repo.all()
 
   def get(id), do: @repo.get(@schema, id)
 

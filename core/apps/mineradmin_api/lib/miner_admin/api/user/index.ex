@@ -9,8 +9,11 @@ defmodule MinerAdmin.Api.User.Index do
 
   def authorize(_req, session), do: Api.Authorize.admin(session)
 
-  def items(_req) do
-    Api.resourcify(Base.Query.User.all, [:auth_backend])
+  def items(req) do
+    req.input
+    |> Api.paginable()
+    |> Base.Query.User.all()
+    |> Api.resourcify([:auth_backend])
   end
 
   def count(_req), do: Base.Query.User.count
