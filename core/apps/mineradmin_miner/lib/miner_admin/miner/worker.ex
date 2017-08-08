@@ -52,9 +52,18 @@ defmodule MinerAdmin.Miner.Worker do
   end
 
   def handle_cast(:startup, state) do
-    {:ok, pid} = Miner.MinerdClient.start_link
+    case Miner.MinerdClient.start_link do
+      {:ok, pid} ->
+        startup(%{state | minerd: pid}, state.program.active)
 
-    startup(%{state | minerd: pid}, state.program.active)
+      {:error, _reason} ->
+        # Worker will receive EXIT message and reconnect from there
+        {:noreply, state}
+    end
+  end
+
+  def handle_call({:start, _prog, _session}, _from, %{minerd: nil} = state) do
+    {:reply, {:error, :not_connected}, state}
   end
 
   def handle_call({:start, prog, session}, _from, state) do
@@ -70,6 +79,10 @@ defmodule MinerAdmin.Miner.Worker do
           {:stop, msg, state}
       end
     end
+  end
+
+  def handle_call({:stop, _prog, _session}, _from, %{minerd: nil} = state) do
+    {:reply, {:error, :not_connected}, state}
   end
 
   def handle_call({:stop, prog, session}, _from, state) do
@@ -113,13 +126,18 @@ defmodule MinerAdmin.Miner.Worker do
     }
   end
 
-  # MinerdClient exited
-  def handle_info({:EXIT, _from, :closed}, state) do
-    # Restart the server, open new connection to minerd
-    handle_cast(:startup, %{state | minerd: nil} |> set_status(false))
+  def handle_info(:reconnect, state) do
+    handle_cast(:startup, state)
   end
 
-  # A subscriber has exited
+  # MinerdClient exited
+  def handle_info({:EXIT, _from, _reason}, state) do
+    Logger.warn "Lost connection to minerd, reconnecting in 5s"
+    Process.send_after(self(), :reconnect, 5*1000)
+    {:noreply, %{state | minerd: nil} |> set_status(false)}
+  end
+
+  # Subscriber or monitor has exited
   def handle_info({:DOWN, ref, :process, pid, reason}, state) do
     if List.keyfind(state.subscribers, ref, 0) do
       Logger.debug "Subscriber has exited with #{reason}"
