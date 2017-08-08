@@ -24,7 +24,7 @@ defmodule MinerAdmin.Base.Program.Nheqminer do
     gpus = user_prog
       |> Base.Query.UserProgram.gpus()
       |> Enum.map(&(&1.uuid))
-      |> Miner.GpuMapper.uuids_to_indexes()
+      |> Miner.Nvidia.GpuMapper.uuids_to_indexes()
       |> Enum.join(",")
 
     {"nheqminer", ["-cd", gpus] ++ args}

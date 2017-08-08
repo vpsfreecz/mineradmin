@@ -1,4 +1,4 @@
-defmodule MinerAdmin.Miner.GpuMapper do
+defmodule MinerAdmin.Miner.Nvidia.GpuMapper do
   use GenServer
   alias MinerAdmin.Miner
 
