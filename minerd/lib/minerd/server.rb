@@ -2,8 +2,11 @@ require 'socket'
 
 class Minerd::Server
   def run
-    @socket = UNIXServer.new('/run/minerd/minerd.sock')
-    File.chmod(0660, '/run/minerd/minerd.sock')
+    path = '/run/minerd/minerd.sock'
+
+    File.unlink(path) if File.exists?(path)
+    @socket = UNIXServer.new(path)
+    File.chmod(0660, path)
 
     loop do
       s = @socket.accept
